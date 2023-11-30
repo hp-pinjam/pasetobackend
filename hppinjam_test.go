@@ -11,7 +11,7 @@ import (
 
 // Test Password Hash
 func TestGeneratePasswordHash(t *testing.T) {
-	passwordhash := "riziqpass"
+	passwordhash := "pakarbipass"
 	hash, _ := HashPassword(passwordhash) // ignore error for the sake of simplicity
 
 	fmt.Println("Password:", passwordhash)
@@ -25,15 +25,15 @@ func TestGeneratePrivateKeyPaseto(t *testing.T) {
 	privateKey, publicKey := watoken.GenerateKey()
 	fmt.Println(privateKey)
 	fmt.Println(publicKey)
-	hasil, err := watoken.Encode("riziqpass", privateKey)
+	hasil, err := watoken.Encode("pakarbipass", privateKey)
 	fmt.Println(hasil, err)
 }
 
 func TestHashFunction(t *testing.T) {
-	mconn := SetConnection("MONGOSTRING", "hppinjam")
+	mconn := SetConnection("MONGOSTRING", "PakarbiDB")
 	var userdata User
-	userdata.Username = "riziq"
-	userdata.PasswordHash = "riziqpass"
+	userdata.Username = "pakarbi"
+	userdata.PasswordHash = "pakarbipass"
 
 	filter := bson.M{"username": userdata.Username}
 	res := atdb.GetOneDoc[User](mconn, "user", filter)
@@ -46,53 +46,53 @@ func TestHashFunction(t *testing.T) {
 }
 
 func TestIsPasswordValid(t *testing.T) {
-	mconn := SetConnection("MONGOSTRING", "hppinjam")
+	mconn := SetConnection("MONGOSTRING", "PakarbiDB")
 	var userdata User
-	userdata.Username = "riziq"
-	userdata.PasswordHash = "riziqpass"
+	userdata.Username = "pakarbi"
+	userdata.PasswordHash = "pakarbipass"
 
 	anu := IsPasswordValid(mconn, "user", userdata)
 	fmt.Println(anu)
 }
 
 func TestUserFix(t *testing.T) {
-	mconn := SetConnection("MONGOSTRING", "hppinjam")
+	mconn := SetConnection("MONGOSTRING", "PakarbiDB")
 	var userdata User
-	userdata.Username = "riziq"
-	// userdata.NPM = "1214000"
-	userdata.Password = "riziqpass"
-	userdata.PasswordHash = "riziqpass"
-	// userdata.Email = "pakarbi2023@gmail.com"
+	userdata.Username = "pakarbi"
+	userdata.NPM = "1214000"
+	userdata.Password = "pakarbipass"
+	userdata.PasswordHash = "pakarbipass"
+	userdata.Email = "pakarbi2023@gmail.com"
 	userdata.Role = "user"
 	CreateUser(mconn, "user", userdata)
 }
 
 func TestAdminFix(t *testing.T) {
-	mconn := SetConnection("MONGOSTRING", "hppinjam")
+	mconn := SetConnection("MONGOSTRING", "PakarbiDB")
 	var admindata Admin
-	admindata.Username = "adminhp"
-	admindata.Password = "adminhppass"
-	admindata.PasswordHash = "adminhppass"
-	// admindata.Email = "PakArbi2023@gmail.com"
+	admindata.Username = "adminpakarbi"
+	admindata.Password = "adminpakarbipass"
+	admindata.PasswordHash = "adminpakarbipass"
+	admindata.Email = "PakArbi2023@gmail.com"
 	admindata.Role = "admin"
 	CreateAdmin(mconn, "admin", admindata)
 }
 
-// func TestParkiran(t *testing.T) {
-// 	mconn := SetConnection("MONGOSTRING", "PakarbiDB")
-// 	var parkirandata Parkiran
-// 	parkirandata.ParkiranId = "1"
-// 	parkirandata.Nama = "Farhan Rizki Maulana"
-// 	parkirandata.NPM = "1214020"
-// 	parkirandata.Jurusan = "D4 Teknik Informatika"
-// 	parkirandata.NamaKendaraan = "Supra X 125"
-// 	parkirandata.NomorKendaraan = "F 1234 NR"
-// 	parkirandata.JenisKendaraan = "Motor"
-// 	CreateNewParkiran(mconn, "parkiran", parkirandata)
-// }
+func TestParkiran(t *testing.T) {
+	mconn := SetConnection("MONGOSTRING", "PakarbiDB")
+	var parkirandata Parkiran
+	parkirandata.ParkiranId = 1
+	parkirandata.Nama = "Farhan Rizki Maulana"
+	parkirandata.NPM = "1214020"
+	parkirandata.Jurusan = "D4 Teknik Informatika"
+	parkirandata.NamaKendaraan = "Supra X 125"
+	parkirandata.NomorKendaraan = "F 1234 NR"
+	parkirandata.JenisKendaraan = "Motor"
+	CreateNewParkiran(mconn, "parkiran", parkirandata)
+}
 
-// func TestAllParkiran(t *testing.T) {
-// 	mconn := SetConnection("MONGOSTRING", "PakarbiDB")
-// 	parkiran := GetAllParkiran(mconn, "parkiran")
-// 	fmt.Println(parkiran)
-// }
+func TestAllParkiran(t *testing.T) {
+	mconn := SetConnection("MONGOSTRING", "PakarbiDB")
+	parkiran := GetAllParkiran(mconn, "parkiran")
+	fmt.Println(parkiran)
+}
