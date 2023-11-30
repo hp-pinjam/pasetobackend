@@ -9,9 +9,71 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
+func TestCreateNewUserRole(t *testing.T) {
+	var userdata User
+	userdata.Email = "farhan@gmail.com"
+	userdata.Password = "riziq"
+	userdata.Role = "user"
+	mconn := SetConnection("MONGOSTRING", "hppinjam")
+	CreateNewUserRole(mconn, "user", userdata)
+}
+
+func TestCreateNewAdminRole(t *testing.T) {
+	var admindata Admin
+
+	admindata.Email = "farhan@gmail.com"
+	admindata.Password = "riziq"
+	admindata.Role = "admin"
+	mconn := SetConnection("MONGOSTRING", "hppinjam")
+	CreateNewAdminRole(mconn, "admin", admindata)
+}
+
+func CreateNewUserToken(t *testing.T) {
+	var userdata User
+	userdata.Email = "farhan@gmail.com"
+	userdata.Password = "riziq"
+	userdata.Role = "user"
+
+	// Create a MongoDB connection
+	mconn := SetConnection("MONGOSTRING", "hppinjam")
+
+	// Call the function to create a user and generate a token
+	err := CreateUserAndAddToken("your_private_key_env", mconn, "user", userdata)
+
+	if err != nil {
+		t.Errorf("Error creating user and token: %v", err)
+	}
+}
+
+func CreateNewAdminToken(t *testing.T) {
+	var admindata User
+	admindata.Email = "farhan@gmail.com"
+	admindata.Password = "riziq"
+	admindata.Role = "admin"
+
+	// Create a MongoDB connection
+	mconn := SetConnection("MONGOSTRING", "hppinjam")
+
+	// Call the function to create a user and generate a token
+	err := CreateUserAndAddToken("your_private_key_env", mconn, "admin", admindata)
+
+	if err != nil {
+		t.Errorf("Error creating admin and token: %v", err)
+	}
+}
+
+func TestGFCPostHandlerUser(t *testing.T) {
+	mconn := SetConnection("MONGOSTRING", "hppinjam")
+	var userdata User
+	userdata.Email = "farhan@gmail.com"
+	userdata.Password = "riziq"
+	userdata.Role = "user"
+	CreateNewUserRole(mconn, "user", userdata)
+}
+
 // Test Password Hash
 func TestGeneratePasswordHash(t *testing.T) {
-	passwordhash := "pakarbipass"
+	passwordhash := "riziq"
 	hash, _ := HashPassword(passwordhash) // ignore error for the sake of simplicity
 
 	fmt.Println("Password:", passwordhash)
@@ -25,15 +87,25 @@ func TestGeneratePrivateKeyPaseto(t *testing.T) {
 	privateKey, publicKey := watoken.GenerateKey()
 	fmt.Println(privateKey)
 	fmt.Println(publicKey)
-	hasil, err := watoken.Encode("pakarbipass", privateKey)
+	hasil, err := watoken.Encode("riziq", privateKey)
 	fmt.Println(hasil, err)
 }
 
+func TestGenerateAdminPasswordHash(t *testing.T) {
+	password := "riziq"
+	hash, _ := HashPassword(password) // ignore error for the sake of simplicity
+
+	fmt.Println("Password:", password)
+	fmt.Println("Hash:    ", hash)
+	match := CheckPasswordHash(password, hash)
+	fmt.Println("Match:   ", match)
+}
+
 func TestHashFunction(t *testing.T) {
-	mconn := SetConnection("MONGOSTRING", "PakarbiDB")
+	mconn := SetConnection("MONGOSTRING", "hppinjam")
 	var userdata User
-	userdata.Username = "pakarbi"
-	userdata.PasswordHash = "pakarbipass"
+	userdata.Email = "farhan@gmail.com"
+	userdata.Password = "riziq"
 
 	filter := bson.M{"username": userdata.Username}
 	res := atdb.GetOneDoc[User](mconn, "user", filter)
@@ -46,53 +118,76 @@ func TestHashFunction(t *testing.T) {
 }
 
 func TestIsPasswordValid(t *testing.T) {
-	mconn := SetConnection("MONGOSTRING", "PakarbiDB")
+	mconn := SetConnection("MONGOSTRING", "hppinjam")
 	var userdata User
-	userdata.Username = "pakarbi"
-	userdata.PasswordHash = "pakarbipass"
+	userdata.Email = "farhan@gmail.com"
+	userdata.Password = "riziq"
 
-	anu := IsPasswordValid(mconn, "user", userdata)
+	anu := IsPasswordValid(mconn, "admin", userdata)
 	fmt.Println(anu)
 }
 
-func TestUserFix(t *testing.T) {
-	mconn := SetConnection("MONGOSTRING", "PakarbiDB")
+func TestInsertUser(t *testing.T) {
+	mconn := SetConnection("MONGOSTRING", "hppinjam")
 	var userdata User
-	userdata.Username = "pakarbi"
-	userdata.NPM = "1214000"
-	userdata.Password = "pakarbipass"
-	userdata.PasswordHash = "pakarbipass"
-	userdata.Email = "pakarbi2023@gmail.com"
+	userdata.Email = "farhan@gmail.com"
+	userdata.Password = "riziq"
+
+	nama := InsertUser(mconn, "user", userdata)
+	fmt.Println(nama)
+}
+
+func TestUserFix(t *testing.T) {
+	mconn := SetConnection("MONGOSTRING", "hppinjam")
+	var userdata User
+	userdata.Email = "farhan@gmail.com"
+	userdata.Password = "riziq"
 	userdata.Role = "user"
 	CreateUser(mconn, "user", userdata)
 }
 
+// Admin
+func TestInsertUserAdmin(t *testing.T) {
+	mconn := SetConnection("MONGOSTRING", "hppinjam")
+	var userdata User
+	userdata.Username = "farhan@gmail.com"
+	userdata.Password = "riziq"
+
+	nama := InsertUser(mconn, "admin", userdata)
+	fmt.Println(nama)
+}
+
 func TestAdminFix(t *testing.T) {
-	mconn := SetConnection("MONGOSTRING", "PakarbiDB")
-	var admindata Admin
-	admindata.Username = "adminpakarbi"
-	admindata.Password = "adminpakarbipass"
-	admindata.PasswordHash = "adminpakarbipass"
-	admindata.Email = "PakArbi2023@gmail.com"
+	mconn := SetConnection("MONGOSTRING", "hppinjam")
+	var admindata User
+	admindata.Email = "farhan@gmail.com"
+	admindata.Password = "riziq"
 	admindata.Role = "admin"
-	CreateAdmin(mconn, "admin", admindata)
+	CreateUser(mconn, "user", admindata)
 }
 
-func TestParkiran(t *testing.T) {
-	mconn := SetConnection("MONGOSTRING", "PakarbiDB")
-	var parkirandata Parkiran
-	parkirandata.ParkiranId = 1
-	parkirandata.Nama = "Farhan Rizki Maulana"
-	parkirandata.NPM = "1214020"
-	parkirandata.Jurusan = "D4 Teknik Informatika"
-	parkirandata.NamaKendaraan = "Supra X 125"
-	parkirandata.NomorKendaraan = "F 1234 NR"
-	parkirandata.JenisKendaraan = "Motor"
-	CreateNewParkiran(mconn, "parkiran", parkirandata)
+func TestIsAdminPasswordValid(t *testing.T) {
+	mconn := SetConnection("MONGOSTRING", "hppinjam")
+	var admindata User
+	admindata.Email = "farhan@gmail.com"
+	admindata.Password = "riziq"
+
+	anu := IsPasswordValid(mconn, "user", admindata)
+	fmt.Println(anu)
 }
 
-func TestAllParkiran(t *testing.T) {
-	mconn := SetConnection("MONGOSTRING", "PakarbiDB")
-	parkiran := GetAllParkiran(mconn, "parkiran")
-	fmt.Println(parkiran)
+func TestHashAdminFunction(t *testing.T) {
+	mconn := SetConnection("MONGOSTRING", "hppinjam")
+	var admindata Admin
+	admindata.Email = "farhan@gmail.com"
+	admindata.Password = "riziq"
+
+	filter := bson.M{"email": admindata.Email}
+	res := atdb.GetOneDoc[User](mconn, "admin", filter)
+	fmt.Println("Mongo User Result: ", res)
+	hash, _ := HashPassword(admindata.Password)
+	fmt.Println("Hash Password : ", hash)
+	match := CheckPasswordHash(admindata.Password, res.Password)
+	fmt.Println("Match:   ", match)
+
 }

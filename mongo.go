@@ -68,15 +68,51 @@ func CreateUser(mongoconn *mongo.Database, collection string, userdata User) int
 	return atdb.InsertOneDoc(mongoconn, collection, userdata)
 }
 
-func InsertUserdata(MongoConn *mongo.Database, username, npm, password, passwordhash, email, role string) (InsertedID interface{}) {
-	req := new(User)
+func InsertdataUser(MongoConn *mongo.Database, username, password string) (InsertedID interface{}) {
+	req := new(RegisterStruct)
 	req.Username = username
-	req.NPM = npm
 	req.Password = password
-	req.PasswordHash = passwordhash
+	return InsertOneDoc(MongoConn, "user", req)
+}
+
+func InsertUserdata(MongoConn *mongo.Database, email, role, password string) (InsertedID interface{}) {
+	req := new(User)
+	// req.Username = username
 	req.Email = email
+	req.Password = password
 	req.Role = role
 	return InsertOneDoc(MongoConn, "user", req)
+}
+
+func InsertUser(db *mongo.Database, collection string, userdata User) string {
+	hash, _ := HashPassword(userdata.Password)
+	userdata.Password = hash
+	atdb.InsertOneDoc(db, collection, userdata)
+	return "Email : " + userdata.Email + "\nPassword : " + userdata.Password
+}
+
+func CreateNewUserRole(mongoconn *mongo.Database, collection string, userdata User) interface{} {
+	// Hash the password before storing it
+	hashedPassword, err := HashPassword(userdata.Password)
+	if err != nil {
+		return err
+	}
+	userdata.Password = hashedPassword
+
+	// Insert the user data into the database
+	return atdb.InsertOneDoc(mongoconn, collection, userdata)
+}
+
+func CreateNewAdminRole(mongoconn *mongo.Database, collection string, admindata Admin) interface{} {
+	// Hash the password before storing it
+	hashedPassword, err := HashPassword(admindata.Password)
+	if err != nil {
+		return err
+	}
+	admindata.Password = hashedPassword
+
+	// Insert the user data into the database
+	return atdb.InsertOneDoc(mongoconn, collection, admindata)
 }
 
 func CreateAdmin(mongoconn *mongo.Database, collection string, admindata Admin) interface{} {

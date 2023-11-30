@@ -29,16 +29,9 @@ type Admin struct {
 	Public       string `json:"public,omitempty" bson:"public,omitempty"`
 }
 
-type Parkiran struct {
-	ID             primitive.ObjectID `bson:"_id,omitempty" `
-	ParkiranId     int                `json:"parkiranid" bson:"parkiranid"`
-	Nama           string             `json:"nama" bson:"nama"`
-	NPM            string             `json:"npm" bson:"npm"`
-	Jurusan        string             `json:"jurusan" bson:"jurusan"`
-	NamaKendaraan  string             `json:"namakendaraan" bson:"namakendaraan"`
-	NomorKendaraan string             `bson:"nomorkendaraan,omitempty" json:"nomorkendaraan,omitempty"`
-	JenisKendaraan string             `json:"jeniskendaraan,omitempty" bson:"jeniskendaraan,omitempty"`
-	Status         bool               `json:"status" bson:"status"`
+type RegisterStruct struct {
+	Username string `json:"username" bson:"username"`
+	Password string `json:"password" bson:"password"`
 }
 
 type Credential struct {

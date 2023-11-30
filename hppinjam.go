@@ -57,17 +57,6 @@ func DeleteOneDoc(_id primitive.ObjectID, db *mongo.Database, col string) error 
 }
 
 // user
-func CreateNewUserRole(mongoconn *mongo.Database, collection string, userdata User) interface{} {
-	// Hash the password before storing it
-	hashedPassword, err := HashPassword(userdata.Password)
-	if err != nil {
-		return err
-	}
-	userdata.Password = hashedPassword
-
-	// Insert the admin data into the database
-	return atdb.InsertOneDoc(mongoconn, collection, userdata)
-}
 
 func CreateUserAndAddToken(privateKeyEnv string, mongoconn *mongo.Database, collection string, userdata User) error {
 	// Hash the password before storing it
@@ -92,15 +81,6 @@ func CreateUserAndAddToken(privateKeyEnv string, mongoconn *mongo.Database, coll
 
 	// Return nil to indicate success
 	return nil
-}
-
-func CreateResponse(status bool, message string, data interface{}) Response {
-	response := Response{
-		Status:  status,
-		Message: message,
-		Data:    data,
-	}
-	return response
 }
 
 func GFCPostHandlerUser(MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Request) string {
@@ -142,39 +122,8 @@ func GCFPostHandler(PASETOPRIVATEKEYENV, MONGOCONNSTRINGENV, dbname, collectionn
 	if err != nil {
 		Response.Message = "error parsing application/json: " + err.Error()
 	} else {
-		// Assuming either email or npm is provided in the request
 		if IsPasswordValid(mconn, collectionname, datauser) {
 			Response.Status = true
-			// Using NPM as identifier, you can modify this as needed
-			tokenstring, err := watoken.Encode(datauser.NPM, os.Getenv(PASETOPRIVATEKEYENV))
-			if err != nil {
-				Response.Message = "Gagal Encode Token : " + err.Error()
-			} else {
-				Response.Message = "Selamat Datang"
-				Response.Token = tokenstring
-			}
-		} else {
-			Response.Message = "NPM atau Password Salah"
-		}
-	}
-
-	return GCFReturnStruct(Response)
-}
-
-// Login User Email
-func GCFPostHandlerEmail(PASETOPRIVATEKEYENV, MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Request) string {
-	var Response Credential
-	Response.Status = false
-	mconn := SetConnection(MONGOCONNSTRINGENV, dbname)
-	var datauser User
-	err := json.NewDecoder(r.Body).Decode(&datauser)
-	if err != nil {
-		Response.Message = "error parsing application/json: " + err.Error()
-	} else {
-		// Assuming either email or npm is provided in the request
-		if IsPasswordValidEmail(mconn, collectionname, datauser) {
-			Response.Status = true
-			// Using NPM as identifier, you can modify this as needed
 			tokenstring, err := watoken.Encode(datauser.Email, os.Getenv(PASETOPRIVATEKEYENV))
 			if err != nil {
 				Response.Message = "Gagal Encode Token : " + err.Error()
@@ -183,7 +132,7 @@ func GCFPostHandlerEmail(PASETOPRIVATEKEYENV, MONGOCONNSTRINGENV, dbname, collec
 				Response.Token = tokenstring
 			}
 		} else {
-			Response.Message = "Email atau Password Salah"
+			Response.Message = "Password Salah"
 		}
 	}
 
@@ -228,7 +177,7 @@ func ReturnStringStruct(Data any) string {
 // Register User
 func Register(Mongoenv, dbname string, r *http.Request) string {
 	resp := new(Credential)
-	userdata := new(User)
+	userdata := new(RegisterStruct)
 	resp.Status = false
 	conn := GetConnectionMongo(Mongoenv, dbname)
 	err := json.NewDecoder(r.Body).Decode(&userdata)
@@ -236,52 +185,13 @@ func Register(Mongoenv, dbname string, r *http.Request) string {
 		resp.Message = "error parsing application/json: " + err.Error()
 	} else {
 		resp.Status = true
-		hash, err := HashPassword(userdata.PasswordHash)
+		hash, err := HashPassword(userdata.Password)
 		if err != nil {
 			resp.Message = "Gagal Hash Password" + err.Error()
 		}
-		InsertUserdata(conn, userdata.Username, userdata.NPM, userdata.Password, hash, userdata.Email, userdata.Role)
+		InsertdataUser(conn, userdata.Username, hash)
 		resp.Message = "Berhasil Input data"
 	}
 	response := ReturnStringStruct(resp)
 	return response
-}
-
-// parkiran
-func CreateNewParkiran(mongoconn *mongo.Database, collection string, parkirandata Parkiran) interface{} {
-	return atdb.InsertOneDoc(mongoconn, collection, parkirandata)
-}
-
-// parkiran function
-func insertParkiran(mongoconn *mongo.Database, collection string, parkirandata Parkiran) interface{} {
-	return atdb.InsertOneDoc(mongoconn, collection, parkirandata)
-}
-
-func DeleteParkiran(mongoconn *mongo.Database, collection string, parkirandata Parkiran) interface{} {
-	filter := bson.M{"parkiranid": parkirandata.ParkiranId}
-	return atdb.DeleteOneDoc(mongoconn, collection, filter)
-}
-
-func UpdatedParkiran(mongoconn *mongo.Database, collection string, filter bson.M, parkirandata Parkiran) interface{} {
-	updatedFilter := bson.M{"parkiranid": parkirandata.ParkiranId}
-	return atdb.ReplaceOneDoc(mongoconn, collection, updatedFilter, parkirandata)
-}
-
-func GetAllParkiran(mongoconn *mongo.Database, collection string) []Parkiran {
-	parkiran := atdb.GetAllDoc[[]Parkiran](mongoconn, collection)
-	return parkiran
-}
-
-func GetAllParkiranID(mongoconn *mongo.Database, collection string, parkirandata Parkiran) Parkiran {
-	filter := bson.M{
-		"parkiranid":     parkirandata.ParkiranId,
-		"nama":           parkirandata.Nama,
-		"npm":            parkirandata.NPM,
-		"jurusan":        parkirandata.Jurusan,
-		"namakendaraan":  parkirandata.NamaKendaraan,
-		"nomorkendaraan": parkirandata.NomorKendaraan,
-		"jeniskendaran":  parkirandata.JenisKendaraan,
-	}
-	catalogID := atdb.GetOneDoc[Parkiran](mongoconn, collection, filter)
-	return catalogID
 }
