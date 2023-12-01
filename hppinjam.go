@@ -124,7 +124,7 @@ func GCFPostHandler(PASETOPRIVATEKEYENV, MONGOCONNSTRINGENV, dbname, collectionn
 	} else {
 		if IsPasswordValid(mconn, collectionname, datauser) {
 			Response.Status = true
-			tokenstring, err := watoken.Encode(datauser.Email, os.Getenv(PASETOPRIVATEKEYENV))
+			tokenstring, err := watoken.Encode(datauser.Username, os.Getenv(PASETOPRIVATEKEYENV))
 			if err != nil {
 				Response.Message = "Gagal Encode Token : " + err.Error()
 			} else {

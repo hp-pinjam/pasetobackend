@@ -130,7 +130,7 @@ func TestIsPasswordValid(t *testing.T) {
 func TestInsertUser(t *testing.T) {
 	mconn := SetConnection("MONGOSTRING", "hppinjam")
 	var userdata User
-	userdata.Email = "farhan@gmail.com"
+	userdata.Username = "farhan"
 	userdata.Password = "riziq"
 
 	nama := InsertUser(mconn, "user", userdata)
