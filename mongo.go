@@ -88,7 +88,7 @@ func InsertUser(db *mongo.Database, collection string, userdata User) string {
 	hash, _ := HashPassword(userdata.Password)
 	userdata.Password = hash
 	atdb.InsertOneDoc(db, collection, userdata)
-	return "Email : " + userdata.Email + "\nPassword : " + userdata.Password
+	return "Username : " + userdata.Username + "\nPassword : " + userdata.Password
 }
 
 func CreateNewUserRole(mongoconn *mongo.Database, collection string, userdata User) interface{} {
