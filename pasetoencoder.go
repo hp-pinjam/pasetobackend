@@ -9,7 +9,7 @@ import (
 )
 
 // <--- paseto encoder --->
-// pengecekantoken
+// memeriksa token
 func IsTokenValid(publickey, tokenstr string) (payload Payload, err error) {
 	var token *paseto.Token
 	var pubKey paseto.V4AsymmetricPublicKey

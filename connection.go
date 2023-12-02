@@ -47,3 +47,42 @@ func InsertOneDoc(db *mongo.Database, collection string, doc interface{}) (inser
 	}
 	return insertResult.InsertedID
 }
+
+func MongoCreateConnection(MongoString, dbname string) *mongo.Database {
+	MongoInfo := atdb.DBInfo{
+		DBString: os.Getenv(MongoString),
+		DBName:   dbname,
+	}
+	conn := atdb.MongoConnect(MongoInfo)
+	return conn
+}
+
+func FindUser(mongoconn *mongo.Database, collection string, userdata User) User {
+	filter := bson.M{"username": userdata.Username}
+	return atdb.GetOneDoc[User](mongoconn, collection, filter)
+}
+
+func DeleteUser(mongoconn *mongo.Database, collection string, userdata User) interface{} {
+	filter := bson.M{"username": userdata.Username}
+	return atdb.DeleteOneDoc(mongoconn, collection, filter)
+}
+
+func InsertUserdata(MongoConn *mongo.Database, username, email, role, password string) (InsertedID interface{}) {
+	req := new(User)
+	req.Username = username
+	req.Email = email
+	req.Password = password
+	req.Role = role
+	return InsertOneDoc(MongoConn, "user", req)
+}
+
+func FindAdmin(mongoconn *mongo.Database, collection string, admindata Admin) Admin {
+	filter := bson.M{"username": admindata.Username}
+	return atdb.GetOneDoc[Admin](mongoconn, collection, filter)
+}
+
+func UserIsPasswordValid(mongoconn *mongo.Database, collection string, userdata User) bool {
+	filter := bson.M{"username": userdata.Username}
+	res := atdb.GetOneDoc[User](mongoconn, collection, filter)
+	return CompareHashPass(userdata.Password, res.Password)
+}
