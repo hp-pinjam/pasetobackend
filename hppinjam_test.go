@@ -14,12 +14,12 @@ func TestCreateNewAdminRole(t *testing.T) {
 	admindata.Email = "ryaasishlah@gmail.com"
 	admindata.Password = "mantap"
 	admindata.Role = "admin"
-	mconn := SetConnection("MONGOSTRING", "pasabarapk")
+	mconn := SetConnection("MONGOSTRING", "hppinjam")
 	CreateNewAdminRole(mconn, "admin", admindata)
 }
 
 func TestDeleteAdmin(t *testing.T) {
-	mconn := SetConnection("MONGOSTRING", "pasabarapk")
+	mconn := SetConnection("MONGOSTRING", "hppinjam")
 	var admindata Admin
 	admindata.Email = "musa@gmail.com"
 	DeleteAdmin(mconn, "admin", admindata)
@@ -32,7 +32,7 @@ func CreateNewAdminToken(t *testing.T) {
 	admindata.Role = "admin"
 
 	// Create a MongoDB connection
-	mconn := SetConnection("MONGOSTRING", "pasabarapk")
+	mconn := SetConnection("MONGOSTRING", "hppinjam")
 
 	// Call the function to create a admin and generate a token
 	err := CreateAdminAndAddToken("your_private_key_env", mconn, "admin", admindata)
@@ -43,7 +43,7 @@ func CreateNewAdminToken(t *testing.T) {
 }
 
 func TestGFCPostHandlerAdmin(t *testing.T) {
-	mconn := SetConnection("MONGOSTRING", "pasabarapk")
+	mconn := SetConnection("MONGOSTRING", "hppinjam")
 	var admindata Admin
 	admindata.Email = "ryaasishlah@gmail.com"
 	admindata.Password = "mantap"
@@ -52,7 +52,7 @@ func TestGFCPostHandlerAdmin(t *testing.T) {
 }
 
 func TestHp(t *testing.T) {
-	mconn := SetConnection("MONGOSTRING", "pasabarapk")
+	mconn := SetConnection("MONGOSTRING", "hppinjam")
 	var hpdata Hp
 	hpdata.Nomorid = 1
 	hpdata.Title = "garut"
@@ -63,7 +63,7 @@ func TestHp(t *testing.T) {
 }
 
 func TestAllHp(t *testing.T) {
-	mconn := SetConnection("MONGOSTRING", "pasabarapk")
+	mconn := SetConnection("MONGOSTRING", "hppinjam")
 	hp := GetAllHp(mconn, "hp")
 	fmt.Println(hp)
 }
@@ -86,7 +86,7 @@ func TestGeneratePrivateKeyPaseto(t *testing.T) {
 }
 
 func TestHashFunction(t *testing.T) {
-	mconn := SetConnection("MONGOSTRING", "pasabarapk")
+	mconn := SetConnection("MONGOSTRING", "hppinjam")
 	var admindata Admin
 	admindata.Email = "edi@gmail.com"
 	admindata.Password = "pecin"
@@ -102,7 +102,7 @@ func TestHashFunction(t *testing.T) {
 }
 
 func TestIsPasswordValid(t *testing.T) {
-	mconn := SetConnection("MONGOSTRING", "pasabarapk")
+	mconn := SetConnection("MONGOSTRING", "hppinjam")
 	var admindata Admin
 	admindata.Email = "bangsat"
 	admindata.Password = "ganteng"
@@ -112,7 +112,7 @@ func TestIsPasswordValid(t *testing.T) {
 }
 
 func TestAdminFix(t *testing.T) {
-	mconn := SetConnection("MONGOSTRING", "pasabarapk")
+	mconn := SetConnection("MONGOSTRING", "hppinjam")
 	var admindata Admin
 	admindata.Email = "pasabar@gmail.com"
 	admindata.Password = "hebat"
@@ -121,7 +121,7 @@ func TestAdminFix(t *testing.T) {
 }
 
 func TestLoginn(t *testing.T) {
-	mconn := SetConnection("MONGOSTRING", "pasabarapk")
+	mconn := SetConnection("MONGOSTRING", "hppinjam")
 	var admindata Admin
 	admindata.Email = "pasabar@gmail.com"
 	admindata.Password = "hebat"
