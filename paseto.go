@@ -69,23 +69,23 @@ func Register(Mongoenv, dbname string, r *http.Request) string {
 // <--- ini hp --->
 
 // hp post
-func GCFInsertHp(publickey, MONGOCONNSTRINGENV, dbname, colluser, collhp string, r *http.Request) string {
+func GCFInsertHp(publickey, MONGOCONNSTRINGENV, dbname, colladmin, collhp string, r *http.Request) string {
 	var response Credential
 	response.Status = false
 	mconn := SetConnection(MONGOCONNSTRINGENV, dbname)
-	var userdata User
-	gettoken := r.Header.Get("token")
+	var admindata Admin
+	gettoken := r.Header.Get("Login")
 	if gettoken == "" {
-		response.Message = "Missing token in headers"
+		response.Message = "Header Login Not Exist"
 	} else {
 		// Process the request with the "Login" token
 		checktoken := watoken.DecodeGetId(os.Getenv(publickey), gettoken)
-		userdata.Username = checktoken
+		admindata.Email = checktoken
 		if checktoken == "" {
-			response.Message = "Invalid token"
+			response.Message = "Kamu kayaknya belum punya akun"
 		} else {
-			user2 := FindUser(mconn, colluser, userdata)
-			if user2.Role == "user" {
+			admin2 := FindAdmin(mconn, colladmin, admindata)
+			if admin2.Role == "admin" {
 				var datahp Hp
 				err := json.NewDecoder(r.Body).Decode(&datahp)
 				if err != nil {
@@ -99,10 +99,10 @@ func GCFInsertHp(publickey, MONGOCONNSTRINGENV, dbname, colluser, collhp string,
 						Status:      datahp.Status,
 					})
 					response.Status = true
-					response.Message = "Berhasil Insert hp"
+					response.Message = "Berhasil Insert Hp"
 				}
 			} else {
-				response.Message = "Anda tidak bisa Insert data karena bukan user"
+				response.Message = "Anda tidak dapat Insert data karena bukan admin"
 			}
 		}
 	}
