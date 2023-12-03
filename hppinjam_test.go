@@ -11,8 +11,8 @@ import (
 
 func TestCreateNewAdminRole(t *testing.T) {
 	var admindata Admin
-	admindata.Email = "ryaasishlah@gmail.com"
-	admindata.Password = "mantap"
+	admindata.Email = "farhan@gmail.com"
+	admindata.Password = "akurijik"
 	admindata.Role = "admin"
 	mconn := SetConnection("MONGOSTRING", "hppinjam")
 	CreateNewAdminRole(mconn, "admin", admindata)
@@ -27,8 +27,8 @@ func TestDeleteAdmin(t *testing.T) {
 
 func CreateNewAdminToken(t *testing.T) {
 	var admindata Admin
-	admindata.Email = "ryaasishlah@gmail.com"
-	admindata.Password = "mantap"
+	admindata.Email = "farhan@gmail.com"
+	admindata.Password = "akurijik"
 	admindata.Role = "admin"
 
 	// Create a MongoDB connection
@@ -45,8 +45,8 @@ func CreateNewAdminToken(t *testing.T) {
 func TestGFCPostHandlerAdmin(t *testing.T) {
 	mconn := SetConnection("MONGOSTRING", "hppinjam")
 	var admindata Admin
-	admindata.Email = "ryaasishlah@gmail.com"
-	admindata.Password = "mantap"
+	admindata.Email = "farhan@gmail.com"
+	admindata.Password = "akurijik"
 	admindata.Role = "admin"
 	CreateNewAdminRole(mconn, "admin", admindata)
 }
@@ -114,7 +114,7 @@ func TestIsPasswordValid(t *testing.T) {
 func TestAdminFix(t *testing.T) {
 	mconn := SetConnection("MONGOSTRING", "hppinjam")
 	var admindata Admin
-	admindata.Email = "pasabar@gmail.com"
+	admindata.Email = "hppinjam@gmail.com"
 	admindata.Password = "hebat"
 	admindata.Role = "admin"
 	CreateAdmin(mconn, "admin", admindata)
@@ -123,7 +123,7 @@ func TestAdminFix(t *testing.T) {
 func TestLoginn(t *testing.T) {
 	mconn := SetConnection("MONGOSTRING", "hppinjam")
 	var admindata Admin
-	admindata.Email = "pasabar@gmail.com"
+	admindata.Email = "hppinjam@gmail.com"
 	admindata.Password = "hebat"
 	IsPasswordValid(mconn, "admin", admindata)
 	fmt.Println(admindata)
