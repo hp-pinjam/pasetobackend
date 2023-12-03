@@ -62,10 +62,10 @@ func TestGFCPostHandlerUser(t *testing.T) {
 func TestInsertHp(t *testing.T) {
 	mconn := SetConnection("MONGOSTRING", "hppinjam")
 	var hpdata Hp
-	hpdata.Nomorid = 1
-	hpdata.Title = "garut"
-	hpdata.Description = "waw garut keren banget"
-	hpdata.Image = "https://images3.alphacoders.com/165/thumb-1920-165265.jpg"
+	hpdata.Nomorid = 2
+	hpdata.Title = "Samsung S23 Ultra"
+	hpdata.Description = "HP dari brand samsung ini memiliki banyak fitur menarik"
+	hpdata.Image = "https://jateng.disway.id/upload/eb0659d7da63dcaf31fc370b7b31e0cc.jpg"
 	CreateNewHp(mconn, "hp", hpdata)
 }
 
