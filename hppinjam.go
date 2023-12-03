@@ -129,45 +129,45 @@ func CreateAdmin(mongoconn *mongo.Database, collection string, admindata Admin) 
 	return atdb.InsertOneDoc(mongoconn, collection, admindata)
 }
 
-// catalog
-func CreateNewCatalog(mongoconn *mongo.Database, collection string, catalogdata Catalog) interface{} {
-	return atdb.InsertOneDoc(mongoconn, collection, catalogdata)
+// hp
+func CreateNewHp(mongoconn *mongo.Database, collection string, hpdata Hp) interface{} {
+	return atdb.InsertOneDoc(mongoconn, collection, hpdata)
 }
 
-// catalog function
-func insertCatalog(mongoconn *mongo.Database, collection string, catalogdata Catalog) interface{} {
-	return atdb.InsertOneDoc(mongoconn, collection, catalogdata)
+// hp function
+func insertHp(mongoconn *mongo.Database, collection string, hpdata Hp) interface{} {
+	return atdb.InsertOneDoc(mongoconn, collection, hpdata)
 }
 
-func DeleteCatalog(mongoconn *mongo.Database, collection string, catalogdata Catalog) interface{} {
-	filter := bson.M{"nomorid": catalogdata.Nomorid}
+func DeleteHp(mongoconn *mongo.Database, collection string, hpdata Hp) interface{} {
+	filter := bson.M{"nomorid": hpdata.Nomorid}
 	return atdb.DeleteOneDoc(mongoconn, collection, filter)
 }
 
-func UpdatedCatalog(mongoconn *mongo.Database, collection string, filter bson.M, catalogdata Catalog) interface{} {
-	updatedFilter := bson.M{"nomorid": catalogdata.Nomorid}
-	return atdb.ReplaceOneDoc(mongoconn, collection, updatedFilter, catalogdata)
+func UpdatedHp(mongoconn *mongo.Database, collection string, filter bson.M, hpdata Hp) interface{} {
+	updatedFilter := bson.M{"nomorid": hpdata.Nomorid}
+	return atdb.ReplaceOneDoc(mongoconn, collection, updatedFilter, hpdata)
 }
 
-func GetAllCatalog(mongoconn *mongo.Database, collection string) []Catalog {
-	catalog := atdb.GetAllDoc[[]Catalog](mongoconn, collection)
-	return catalog
+func GetAllHp(mongoconn *mongo.Database, collection string) []Hp {
+	hp := atdb.GetAllDoc[[]Hp](mongoconn, collection)
+	return hp
 }
-func GetAllCatalogs(MongoConn *mongo.Database, colname string, email string) []Admin {
+func GetAllHps(MongoConn *mongo.Database, colname string, email string) []Admin {
 	data := atdb.GetAllDoc[[]Admin](MongoConn, colname)
 	return data
 }
 
-func GetAllCatalogID(mongoconn *mongo.Database, collection string, catalogdata Catalog) Catalog {
+func GetAllHpID(mongoconn *mongo.Database, collection string, hpdata Hp) Hp {
 	filter := bson.M{
-		"nomorid":     catalogdata.Nomorid,
-		"title":       catalogdata.Title,
-		"description": catalogdata.Description,
-		"image":       catalogdata.Image,
-		"lokasi":      catalogdata.Lokasi,
+		"nomorid":     hpdata.Nomorid,
+		"title":       hpdata.Title,
+		"description": hpdata.Description,
+		"image":       hpdata.Image,
+		"lokasi":      hpdata.Lokasi,
 	}
-	catalogID := atdb.GetOneDoc[Catalog](mongoconn, collection, filter)
-	return catalogID
+	hpID := atdb.GetOneDoc[Hp](mongoconn, collection, filter)
+	return hpID
 }
 
 // about function

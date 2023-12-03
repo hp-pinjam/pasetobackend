@@ -51,21 +51,21 @@ func TestGFCPostHandlerAdmin(t *testing.T) {
 	CreateNewAdminRole(mconn, "admin", admindata)
 }
 
-func TestCatalog(t *testing.T) {
+func TestHp(t *testing.T) {
 	mconn := SetConnection("MONGOSTRING", "pasabarapk")
-	var catalogdata Catalog
-	catalogdata.Nomorid = 1
-	catalogdata.Title = "garut"
-	catalogdata.Description = "keren banget"
-	catalogdata.Lokasi = "disini"
-	catalogdata.Image = "https://images3.alphacoders.com/165/thumb-1920-165265.jpg"
-	CreateNewCatalog(mconn, "catalog", catalogdata)
+	var hpdata Hp
+	hpdata.Nomorid = 1
+	hpdata.Title = "garut"
+	hpdata.Description = "keren banget"
+	hpdata.Lokasi = "disini"
+	hpdata.Image = "https://images3.alphacoders.com/165/thumb-1920-165265.jpg"
+	CreateNewHp(mconn, "hp", hpdata)
 }
 
-func TestAllCatalog(t *testing.T) {
+func TestAllHp(t *testing.T) {
 	mconn := SetConnection("MONGOSTRING", "pasabarapk")
-	catalog := GetAllCatalog(mconn, "catalog")
-	fmt.Println(catalog)
+	hp := GetAllHp(mconn, "hp")
+	fmt.Println(hp)
 }
 
 func TestGeneratePasswordHash(t *testing.T) {

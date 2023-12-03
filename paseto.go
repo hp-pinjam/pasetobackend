@@ -66,10 +66,10 @@ func Register(Mongoenv, dbname string, r *http.Request) string {
 	return response
 }
 
-// <--- ini catalog --->
+// <--- ini hp --->
 
-// catalog post
-func GCFInsertCatalog(publickey, MONGOCONNSTRINGENV, dbname, colladmin, collcatalog string, r *http.Request) string {
+// hp post
+func GCFInsertHp(publickey, MONGOCONNSTRINGENV, dbname, colladmin, collhp string, r *http.Request) string {
 	var response Credential
 	response.Status = false
 	mconn := SetConnection(MONGOCONNSTRINGENV, dbname)
@@ -86,21 +86,21 @@ func GCFInsertCatalog(publickey, MONGOCONNSTRINGENV, dbname, colladmin, collcata
 		} else {
 			admin2 := FindAdmin(mconn, colladmin, admindata)
 			if admin2.Role == "admin" {
-				var datacatalog Catalog
-				err := json.NewDecoder(r.Body).Decode(&datacatalog)
+				var datahp Hp
+				err := json.NewDecoder(r.Body).Decode(&datahp)
 				if err != nil {
 					response.Message = "Error parsing application/json: " + err.Error()
 				} else {
-					insertCatalog(mconn, collcatalog, Catalog{
-						Nomorid:     datacatalog.Nomorid,
-						Title:       datacatalog.Title,
-						Description: datacatalog.Description,
-						Lokasi:      datacatalog.Lokasi,
-						Image:       datacatalog.Image,
-						Status:      datacatalog.Status,
+					insertHp(mconn, collhp, Hp{
+						Nomorid:     datahp.Nomorid,
+						Title:       datahp.Title,
+						Description: datahp.Description,
+						Lokasi:      datahp.Lokasi,
+						Image:       datahp.Image,
+						Status:      datahp.Status,
 					})
 					response.Status = true
-					response.Message = "Berhasil Insert Catalog"
+					response.Message = "Berhasil Insert Hp"
 				}
 			} else {
 				response.Message = "Anda tidak dapat Insert data karena bukan admin"
@@ -110,8 +110,8 @@ func GCFInsertCatalog(publickey, MONGOCONNSTRINGENV, dbname, colladmin, collcata
 	return GCFReturnStruct(response)
 }
 
-// delete catalog
-func GCFDeleteCatalog(publickey, MONGOCONNSTRINGENV, dbname, colladmin, collcatalog string, r *http.Request) string {
+// delete Hp
+func GCFDeleteHp(publickey, MONGOCONNSTRINGENV, dbname, colladmin, collhp string, r *http.Request) string {
 
 	var respon Credential
 	respon.Status = false
@@ -130,14 +130,14 @@ func GCFDeleteCatalog(publickey, MONGOCONNSTRINGENV, dbname, colladmin, collcata
 		} else {
 			admin2 := FindAdmin(mconn, colladmin, admindata)
 			if admin2.Role == "admin" {
-				var datacatalog Catalog
-				err := json.NewDecoder(r.Body).Decode(&datacatalog)
+				var datahp Hp
+				err := json.NewDecoder(r.Body).Decode(&datahp)
 				if err != nil {
 					respon.Message = "Error parsing application/json: " + err.Error()
 				} else {
-					DeleteCatalog(mconn, collcatalog, datacatalog)
+					DeleteHp(mconn, collhp, datahp)
 					respon.Status = true
-					respon.Message = "Berhasil Delete Catalog"
+					respon.Message = "Berhasil Delete Hp"
 				}
 			} else {
 				respon.Message = "Anda tidak dapat Delete data karena bukan admin"
@@ -147,8 +147,8 @@ func GCFDeleteCatalog(publickey, MONGOCONNSTRINGENV, dbname, colladmin, collcata
 	return GCFReturnStruct(respon)
 }
 
-// update catalog
-func GCFUpdateCatalog(publickey, MONGOCONNSTRINGENV, dbname, colladmin, collcatalog string, r *http.Request) string {
+// update Hp
+func GCFUpdateHp(publickey, MONGOCONNSTRINGENV, dbname, colladmin, collhp string, r *http.Request) string {
 	var response Credential
 	response.Status = false
 	mconn := SetConnection(MONGOCONNSTRINGENV, dbname)
@@ -165,16 +165,16 @@ func GCFUpdateCatalog(publickey, MONGOCONNSTRINGENV, dbname, colladmin, collcata
 		} else {
 			admin2 := FindAdmin(mconn, colladmin, admindata)
 			if admin2.Role == "admin" {
-				var datacatalog Catalog
-				err := json.NewDecoder(r.Body).Decode(&datacatalog)
+				var datahp Hp
+				err := json.NewDecoder(r.Body).Decode(&datahp)
 				if err != nil {
 					response.Message = "Error parsing application/json: " + err.Error()
 
 				} else {
-					UpdatedCatalog(mconn, collcatalog, bson.M{"id": datacatalog.ID}, datacatalog)
+					UpdatedHp(mconn, collhp, bson.M{"id": datahp.ID}, datahp)
 					response.Status = true
-					response.Message = "Berhasil Update Catalog"
-					GCFReturnStruct(CreateResponse(true, "Success Update Catalog", datacatalog))
+					response.Message = "Berhasil Update Hp"
+					GCFReturnStruct(CreateResponse(true, "Success Update Hp", datahp))
 				}
 			} else {
 				response.Message = "Anda tidak dapat Update data karena bukan admin"
@@ -185,18 +185,18 @@ func GCFUpdateCatalog(publickey, MONGOCONNSTRINGENV, dbname, colladmin, collcata
 	return GCFReturnStruct(response)
 }
 
-// get all catalog
-func GCFGetAllCatalog(MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Request) string {
+// get all hp
+func GCFGetAllHp(MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Request) string {
 	mconn := SetConnection(MONGOCONNSTRINGENV, dbname)
-	datacatalog := GetAllCatalog(mconn, collectionname)
-	if datacatalog != nil {
-		return GCFReturnStruct(CreateResponse(true, "success Get All Catalog", datacatalog))
+	datahp := GetAllHp(mconn, collectionname)
+	if datahp != nil {
+		return GCFReturnStruct(CreateResponse(true, "success Get All Hp", datahp))
 	} else {
-		return GCFReturnStruct(CreateResponse(false, "Failed Get All Catalog", datacatalog))
+		return GCFReturnStruct(CreateResponse(false, "Failed Get All Hp", datahp))
 	}
 }
 
-func GCFGetAllCatalogg(publickey, Mongostring, dbname, colname string, r *http.Request) string {
+func GCFGetAllHpg(publickey, Mongostring, dbname, colname string, r *http.Request) string {
 	resp := new(Credential)
 	tokenlogin := r.Header.Get("Login")
 	if tokenlogin == "" {
@@ -209,8 +209,8 @@ func GCFGetAllCatalogg(publickey, Mongostring, dbname, colname string, r *http.R
 			resp.Message = "Kamu kayaknya belum punya akun"
 		} else {
 			koneksyen := SetConnection(Mongostring, dbname)
-			datacatalog := GetAllCatalog(koneksyen, colname)
-			yas, _ := json.Marshal(datacatalog)
+			datahp := GetAllHp(koneksyen, colname)
+			yas, _ := json.Marshal(datahp)
 			resp.Status = true
 			resp.Message = "Data Berhasil diambil"
 			resp.Token = string(yas)
@@ -219,7 +219,7 @@ func GCFGetAllCatalogg(publickey, Mongostring, dbname, colname string, r *http.R
 	return ReturnStringStruct(resp)
 }
 
-func GetAllDataCatalogs(PublicKey, MongoEnv, dbname, colname string, r *http.Request) string {
+func GetAllDataHps(PublicKey, MongoEnv, dbname, colname string, r *http.Request) string {
 	req := new(Response)
 	conn := SetConnection(MongoEnv, dbname)
 	tokenlogin := r.Header.Get("Login")
@@ -228,41 +228,41 @@ func GetAllDataCatalogs(PublicKey, MongoEnv, dbname, colname string, r *http.Req
 		req.Message = "Header Login Not Found"
 	} else {
 		// Dekode token untuk mendapatkan
-		_, err := DecodeGetCatalog(os.Getenv(PublicKey), tokenlogin)
+		_, err := DecodeGetHp(os.Getenv(PublicKey), tokenlogin)
 		if err != nil {
 			req.Status = false
 			req.Message = "Tidak ada data  " + tokenlogin
 		} else {
-			// Langsung ambil data catalog
-			datacatalog := GetAllCatalog(conn, colname)
-			if datacatalog == nil {
+			// Langsung ambil data hp
+			datahp := GetAllHp(conn, colname)
+			if datahp == nil {
 				req.Status = false
-				req.Message = "Data catalog tidak ada"
+				req.Message = "Data hp tidak ada"
 			} else {
 				req.Status = true
-				req.Message = "Data Catalog berhasil diambil"
-				req.Data = datacatalog
+				req.Message = "Data Hp berhasil diambil"
+				req.Data = datahp
 			}
 		}
 	}
 	return ReturnStringStruct(req)
 }
 
-// get all catalog by id
-func GCFGetAllCatalogID(MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Request) string {
+// get all hp by id
+func GCFGetAllHpID(MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Request) string {
 	mconn := SetConnection(MONGOCONNSTRINGENV, dbname)
 
-	var datacatalog Catalog
-	err := json.NewDecoder(r.Body).Decode(&datacatalog)
+	var datahp Hp
+	err := json.NewDecoder(r.Body).Decode(&datahp)
 	if err != nil {
 		return err.Error()
 	}
 
-	catalog := GetAllCatalogID(mconn, collectionname, datacatalog)
-	if catalog != (Catalog{}) {
-		return GCFReturnStruct(CreateResponse(true, "Success: Get ID Catalog", datacatalog))
+	hp := GetAllHpID(mconn, collectionname, datahp)
+	if hp != (Hp{}) {
+		return GCFReturnStruct(CreateResponse(true, "Success: Get ID Hp", datahp))
 	} else {
-		return GCFReturnStruct(CreateResponse(false, "Failed to Get ID Catalog", datacatalog))
+		return GCFReturnStruct(CreateResponse(false, "Failed to Get ID Hp", datahp))
 	}
 }
 
@@ -379,7 +379,7 @@ func GCFUpdateAbout(publickey, MONGOCONNSTRINGENV, dbname, colladmin, collabout 
 				} else {
 					UpdatedAbout(mconn, collabout, bson.M{"id": dataabout.ID}, dataabout)
 					response.Status = true
-					response.Message = "Berhasil Update Catalog"
+					response.Message = "Berhasil Update Hp"
 					CreateResponse(true, "Success Update About", dataabout)
 				}
 			} else {
@@ -414,8 +414,8 @@ func GCFGetAllAboutt(publickey, Mongostring, dbname, colname string, r *http.Req
 			resp.Message = "Kamu kayaknya belum punya akun"
 		} else {
 			koneksyen := SetConnection(Mongostring, dbname)
-			datacatalog := GetAllAbout(koneksyen, colname)
-			yas, _ := json.Marshal(datacatalog)
+			datahp := GetAllAbout(koneksyen, colname)
+			yas, _ := json.Marshal(datahp)
 			resp.Status = true
 			resp.Message = "Data Berhasil diambil"
 			resp.Token = string(yas)
@@ -466,8 +466,8 @@ func GCFGetAllContactt(publickey, Mongostring, dbname, colname string, r *http.R
 			resp.Message = "Kamu kayaknya belum punya akun"
 		} else {
 			koneksyen := SetConnection(Mongostring, dbname)
-			datacatalog := GetAllContact(koneksyen, colname)
-			yas, _ := json.Marshal(datacatalog)
+			datahp := GetAllContact(koneksyen, colname)
+			yas, _ := json.Marshal(datahp)
 			resp.Status = true
 			resp.Message = "Data Berhasil diambil"
 			resp.Token = string(yas)
@@ -502,8 +502,8 @@ func GCFGetAllCrawlingg(publickey, Mongostring, dbname, colname string, r *http.
 			resp.Message = "Kamu kayaknya belum punya akun"
 		} else {
 			koneksyen := SetConnection(Mongostring, dbname)
-			datacatalog := GetAllCrawling(koneksyen, colname)
-			yas, _ := json.Marshal(datacatalog)
+			datahp := GetAllCrawling(koneksyen, colname)
+			yas, _ := json.Marshal(datahp)
 			resp.Status = true
 			resp.Message = "Data Berhasil diambil"
 			resp.Token = string(yas)
