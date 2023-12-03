@@ -9,75 +9,67 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 )
 
-// user
-func TestCreateNewUserRole(t *testing.T) {
-	var userdata User
-	userdata.Username = "farhanriziq"
-	userdata.Email = "farhanriziq@gmail.com"
-	userdata.Password = "riziq"
-	userdata.Role = "user"
-	mconn := SetConnection("MONGOSTRING", "hppinjam")
-	CreateNewUserRole(mconn, "user", userdata)
+func TestCreateNewAdminRole(t *testing.T) {
+	var admindata Admin
+	admindata.Email = "ryaasishlah@gmail.com"
+	admindata.Password = "mantap"
+	admindata.Role = "admin"
+	mconn := SetConnection("MONGOSTRING", "pasabarapk")
+	CreateNewAdminRole(mconn, "admin", admindata)
 }
 
-// user
-func TestDeleteUser(t *testing.T) {
-	mconn := SetConnection("MONGOSTRING", "hppinjam")
-	var userdata User
-	userdata.Email = "farhanriziq@gmail.com"
-	DeleteUser(mconn, "user", userdata)
+func TestDeleteAdmin(t *testing.T) {
+	mconn := SetConnection("MONGOSTRING", "pasabarapk")
+	var admindata Admin
+	admindata.Email = "musa@gmail.com"
+	DeleteAdmin(mconn, "admin", admindata)
 }
 
-// user
-func CreateNewUserToken(t *testing.T) {
-	var userdata User
-	userdata.Username = "farhanriziq"
-	userdata.Email = "farhanriziq@gmail.com"
-	userdata.Password = "riziq"
-	userdata.Role = "user"
+func CreateNewAdminToken(t *testing.T) {
+	var admindata Admin
+	admindata.Email = "ryaasishlah@gmail.com"
+	admindata.Password = "mantap"
+	admindata.Role = "admin"
 
 	// Create a MongoDB connection
-	mconn := SetConnection("MONGOSTRING", "hppinjam")
+	mconn := SetConnection("MONGOSTRING", "pasabarapk")
 
-	// Call the function to create a user and generate a token
-	err := CreateUserAndAddToken("your_private_key_env", mconn, "user", userdata)
+	// Call the function to create a admin and generate a token
+	err := CreateAdminAndAddToken("your_private_key_env", mconn, "admin", admindata)
 
 	if err != nil {
-		t.Errorf("Error creating user and token: %v", err)
+		t.Errorf("Error creating admin and token: %v", err)
 	}
 }
 
-// user
-func TestGFCPostHandlerUser(t *testing.T) {
-	mconn := SetConnection("MONGOSTRING", "hppinjam")
-	var userdata User
-	userdata.Username = "farhanriziq"
-	userdata.Email = "farhanriziq@gmail.com"
-	userdata.Password = "riziq"
-	userdata.Role = "user"
-	CreateNewUserRole(mconn, "user", userdata)
+func TestGFCPostHandlerAdmin(t *testing.T) {
+	mconn := SetConnection("MONGOSTRING", "pasabarapk")
+	var admindata Admin
+	admindata.Email = "ryaasishlah@gmail.com"
+	admindata.Password = "mantap"
+	admindata.Role = "admin"
+	CreateNewAdminRole(mconn, "admin", admindata)
 }
 
-// Test Insert Hp
-func TestInsertHp(t *testing.T) {
-	mconn := SetConnection("MONGOSTRING", "hppinjam")
-	var hpdata Hp
-	hpdata.Nomorid = 2
-	hpdata.Title = "Samsung S23 Ultra"
-	hpdata.Description = "HP dari brand samsung ini memiliki banyak fitur menarik"
-	hpdata.Image = "https://jateng.disway.id/upload/eb0659d7da63dcaf31fc370b7b31e0cc.jpg"
-	CreateNewHp(mconn, "hp", hpdata)
+func TestCatalog(t *testing.T) {
+	mconn := SetConnection("MONGOSTRING", "pasabarapk")
+	var catalogdata Catalog
+	catalogdata.Nomorid = 1
+	catalogdata.Title = "garut"
+	catalogdata.Description = "keren banget"
+	catalogdata.Lokasi = "disini"
+	catalogdata.Image = "https://images3.alphacoders.com/165/thumb-1920-165265.jpg"
+	CreateNewCatalog(mconn, "catalog", catalogdata)
 }
 
-// Test All Hp
-func TestAllHp(t *testing.T) {
-	mconn := SetConnection("MONGOSTRING", "hppinjam")
-	hp := GetAllHp(mconn, "hp")
-	fmt.Println(hp)
+func TestAllCatalog(t *testing.T) {
+	mconn := SetConnection("MONGOSTRING", "pasabarapk")
+	catalog := GetAllCatalog(mconn, "catalog")
+	fmt.Println(catalog)
 }
 
 func TestGeneratePasswordHash(t *testing.T) {
-	password := "riziq"
+	password := "ganteng"
 	hash, _ := HashPass(password) // ignore error for the sake of simplicity
 
 	fmt.Println("Password:", password)
@@ -85,63 +77,54 @@ func TestGeneratePasswordHash(t *testing.T) {
 	match := CompareHashPass(password, hash)
 	fmt.Println("Match:   ", match)
 }
-
-// pasetokey
 func TestGeneratePrivateKeyPaseto(t *testing.T) {
 	privateKey, publicKey := watoken.GenerateKey()
 	fmt.Println(privateKey)
 	fmt.Println(publicKey)
-	hasil, err := watoken.Encode("hppinjam", privateKey)
+	hasil, err := watoken.Encode("alagaday", privateKey)
 	fmt.Println(hasil, err)
 }
 
-// user
-func TestHashFunctionUser(t *testing.T) {
-	mconn := SetConnection("MONGOSTRING", "hppinjam")
-	var userdata User
-	userdata.Username = "farhanriziq"
-	userdata.Email = "farhanriziq@gmail.com"
-	userdata.Password = "riziq"
+func TestHashFunction(t *testing.T) {
+	mconn := SetConnection("MONGOSTRING", "pasabarapk")
+	var admindata Admin
+	admindata.Email = "edi@gmail.com"
+	admindata.Password = "pecin"
 
-	filter := bson.M{"username": userdata.Username}
-	res := atdb.GetOneDoc[Admin](mconn, "user", filter)
-	fmt.Println("Mongo User Result: ", res)
-	hash, _ := HashPass(userdata.Password)
+	filter := bson.M{"email": admindata.Email}
+	res := atdb.GetOneDoc[Admin](mconn, "admin", filter)
+	fmt.Println("Mongo Admin Result: ", res)
+	hash, _ := HashPass(admindata.Password)
 	fmt.Println("Hash Password : ", hash)
-	match := CompareHashPass(userdata.Password, res.Password)
+	match := CompareHashPass(admindata.Password, res.Password)
 	fmt.Println("Match:   ", match)
+
 }
 
-// user
-func TestUserIsPasswordValid(t *testing.T) {
-	mconn := SetConnection("MONGOSTRING", "hppinjam")
-	var userdata User
-	userdata.Username = "farhanriziq"
-	userdata.Email = "farhanriziq@gmail.com"
-	userdata.Password = "riziq"
+func TestIsPasswordValid(t *testing.T) {
+	mconn := SetConnection("MONGOSTRING", "pasabarapk")
+	var admindata Admin
+	admindata.Email = "bangsat"
+	admindata.Password = "ganteng"
 
-	anu := UserIsPasswordValid(mconn, "user", userdata)
+	anu := IsPasswordValid(mconn, "admin", admindata)
 	fmt.Println(anu)
 }
 
-// user
-func TestUserFix(t *testing.T) {
-	mconn := SetConnection("MONGOSTRING", "hppinjam")
-	var userdata User
-	userdata.Username = "farhanriziq"
-	userdata.Email = "farhanriziq@gmail.com"
-	userdata.Password = "riziq"
-	userdata.Role = "user"
-	CreateUser(mconn, "user", userdata)
+func TestAdminFix(t *testing.T) {
+	mconn := SetConnection("MONGOSTRING", "pasabarapk")
+	var admindata Admin
+	admindata.Email = "pasabar@gmail.com"
+	admindata.Password = "hebat"
+	admindata.Role = "admin"
+	CreateAdmin(mconn, "admin", admindata)
 }
 
-// user
-func TestLoginUser(t *testing.T) {
-	mconn := SetConnection("MONGOSTRING", "hppinjam")
-	var userdata User
-	userdata.Username = "farhanriziq"
-	userdata.Email = "farhanriziq@gmail.com"
-	userdata.Password = "riziq"
-	UserIsPasswordValid(mconn, "user", userdata)
-	fmt.Println(userdata)
+func TestLoginn(t *testing.T) {
+	mconn := SetConnection("MONGOSTRING", "pasabarapk")
+	var admindata Admin
+	admindata.Email = "pasabar@gmail.com"
+	admindata.Password = "hebat"
+	IsPasswordValid(mconn, "admin", admindata)
+	fmt.Println(admindata)
 }

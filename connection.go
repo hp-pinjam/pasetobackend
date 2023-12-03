@@ -6,46 +6,47 @@ import (
 	"os"
 
 	"github.com/aiteung/atdb"
+	"github.com/whatsauth/watoken"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func GetConnectionMongo(MongoString, dbname string) *mongo.Database {
-	MongoInfo := atdb.DBInfo{
-		DBString: os.Getenv(MongoString),
-		DBName:   dbname,
-	}
-	conn := atdb.MongoConnect(MongoInfo)
-	return conn
-}
-
-func SetConnection(MONGOCONNSTRING, dbname string) *mongo.Database {
+func SetConnection(MONGOCONNSTRINGENV, dbname string) *mongo.Database {
 	var DBmongoinfo = atdb.DBInfo{
-		DBString: os.Getenv(MONGOCONNSTRING),
+		DBString: os.Getenv(MONGOCONNSTRINGENV),
 		DBName:   dbname,
 	}
 	return atdb.MongoConnect(DBmongoinfo)
 }
 
-func IsPasswordValid(mongoconn *mongo.Database, collection string, userdata User) bool {
-	filter := bson.M{"username": userdata.Username}
-	res := atdb.GetOneDoc[User](mongoconn, collection, filter)
-	return CheckPasswordHash(userdata.Password, res.Password)
-}
-
-func InsertdataUser(MongoConn *mongo.Database, username, password string) (InsertedID interface{}) {
-	req := new(RegisterStruct)
-	req.Username = username
+func InsertAdmindata(MongoConn *mongo.Database, email, role, password string) (InsertedID interface{}) {
+	req := new(Admin)
+	req.Email = email
 	req.Password = password
-	return InsertOneDoc(MongoConn, "user", req)
+	req.Role = role
+	return InsertOneDoc(MongoConn, "admin", req)
 }
 
-func InsertOneDoc(db *mongo.Database, collection string, doc interface{}) (insertedID interface{}) {
-	insertResult, err := db.Collection(collection).InsertOne(context.TODO(), doc)
-	if err != nil {
-		fmt.Printf("InsertOneDoc: %v\n", err)
-	}
-	return insertResult.InsertedID
+func DeleteAdmin(mongoconn *mongo.Database, collection string, admindata Admin) interface{} {
+	filter := bson.M{"email": admindata.Email}
+	return atdb.DeleteOneDoc(mongoconn, collection, filter)
+}
+
+func FindAdmin(mongoconn *mongo.Database, collection string, admindata Admin) Admin {
+	filter := bson.M{"email": admindata.Email}
+	return atdb.GetOneDoc[Admin](mongoconn, collection, filter)
+}
+
+func IsExist(Tokenstr, PublicKey string) bool {
+	id := watoken.DecodeGetId(PublicKey, Tokenstr)
+	return id != ""
+}
+
+func IsPasswordValid(mongoconn *mongo.Database, collection string, admindata Admin) bool {
+	filter := bson.M{"email": admindata.Email}
+	res := atdb.GetOneDoc[Admin](mongoconn, collection, filter)
+	return CompareHashPass(admindata.Password, res.Password)
 }
 
 func MongoCreateConnection(MongoString, dbname string) *mongo.Database {
@@ -57,32 +58,16 @@ func MongoCreateConnection(MongoString, dbname string) *mongo.Database {
 	return conn
 }
 
-func FindUser(mongoconn *mongo.Database, collection string, userdata User) User {
-	filter := bson.M{"username": userdata.Username}
-	return atdb.GetOneDoc[User](mongoconn, collection, filter)
+func InsertOneDoc(db *mongo.Database, collection string, doc interface{}) (insertedID interface{}) {
+	insertResult, err := db.Collection(collection).InsertOne(context.TODO(), doc)
+	if err != nil {
+		fmt.Printf("InsertOneDoc: %v\n", err)
+	}
+	return insertResult.InsertedID
 }
 
-func DeleteUser(mongoconn *mongo.Database, collection string, userdata User) interface{} {
-	filter := bson.M{"username": userdata.Username}
-	return atdb.DeleteOneDoc(mongoconn, collection, filter)
-}
-
-func InsertUserdata(MongoConn *mongo.Database, username, email, role, password string) (InsertedID interface{}) {
-	req := new(User)
-	req.Username = username
-	req.Email = email
-	req.Password = password
-	req.Role = role
-	return InsertOneDoc(MongoConn, "user", req)
-}
-
-func FindAdmin(mongoconn *mongo.Database, collection string, admindata Admin) Admin {
-	filter := bson.M{"username": admindata.Username}
-	return atdb.GetOneDoc[Admin](mongoconn, collection, filter)
-}
-
-func UserIsPasswordValid(mongoconn *mongo.Database, collection string, userdata User) bool {
-	filter := bson.M{"username": userdata.Username}
-	res := atdb.GetOneDoc[User](mongoconn, collection, filter)
-	return CompareHashPass(userdata.Password, res.Password)
+func GetOneAdmin(MongoConn *mongo.Database, colname string, admindata Admin) Admin {
+	filter := bson.M{"email": admindata.Email}
+	data := atdb.GetOneDoc[Admin](MongoConn, colname, filter)
+	return data
 }

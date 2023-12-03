@@ -55,38 +55,37 @@ func DeleteOneDoc(_id primitive.ObjectID, db *mongo.Database, col string) error 
 	return nil
 }
 
-// user
-func CreateNewUserRole(mongoconn *mongo.Database, collection string, userdata User) interface{} {
+// admin
+func CreateNewAdminRole(mongoconn *mongo.Database, collection string, admindata Admin) interface{} {
 	// Hash the password before storing it
-	hashedPassword, err := HashPass(userdata.Password)
+	hashedPassword, err := HashPass(admindata.Password)
 	if err != nil {
 		return err
 	}
-	userdata.Password = hashedPassword
+	admindata.Password = hashedPassword
 
 	// Insert the admin data into the database
-	return atdb.InsertOneDoc(mongoconn, collection, userdata)
+	return atdb.InsertOneDoc(mongoconn, collection, admindata)
 }
 
-// user
-func CreateUserAndAddToken(privateKeyEnv string, mongoconn *mongo.Database, collection string, userdata User) error {
+func CreateAdminAndAddToken(privateKeyEnv string, mongoconn *mongo.Database, collection string, admindata Admin) error {
 	// Hash the password before storing it
-	hashedPassword, err := HashPass(userdata.Password)
+	hashedPassword, err := HashPass(admindata.Password)
 	if err != nil {
 		return err
 	}
-	userdata.Password = hashedPassword
+	admindata.Password = hashedPassword
 
 	// Create a token for the admin
-	tokenstring, err := watoken.Encode(userdata.Username, os.Getenv(privateKeyEnv))
+	tokenstring, err := watoken.Encode(admindata.Email, os.Getenv(privateKeyEnv))
 	if err != nil {
 		return err
 	}
 
-	userdata.Token = tokenstring
+	admindata.Token = tokenstring
 
-	// Insert the user data into the MongoDB collection
-	if err := atdb.InsertOneDoc(mongoconn, collection, userdata.Username); err != nil {
+	// Insert the admin data into the MongoDB collection
+	if err := atdb.InsertOneDoc(mongoconn, collection, admindata.Email); err != nil {
 		return nil // Mengembalikan kesalahan yang dikembalikan oleh atdb.InsertOneDoc
 	}
 
@@ -103,7 +102,6 @@ func CreateResponse(status bool, message string, data interface{}) Response {
 	return response
 }
 
-// admin
 func CreateAdmin(mongoconn *mongo.Database, collection string, admindata Admin) interface{} {
 	// Hash the password before storing it
 	hashedPassword, err := HashPass(admindata.Password)
@@ -131,66 +129,87 @@ func CreateAdmin(mongoconn *mongo.Database, collection string, admindata Admin) 
 	return atdb.InsertOneDoc(mongoconn, collection, admindata)
 }
 
-// user
-func CreateUser(mongoconn *mongo.Database, collection string, userdata User) interface{} {
-	// Hash the password before storing it
-	hashedPassword, err := HashPass(userdata.Password)
-	if err != nil {
-		return err
-	}
-	privateKey, publicKey := watoken.GenerateKey()
-	userid := userdata.Email
-	tokenstring, err := watoken.Encode(userid, privateKey)
-	if err != nil {
-		fmt.Println(err)
-	}
-	fmt.Println(tokenstring)
-	// decode token to get userid
-	useridstring := watoken.DecodeGetId(publicKey, tokenstring)
-	if useridstring == "" {
-		fmt.Println("expire token")
-	}
-	fmt.Println(useridstring)
-	userdata.Private = privateKey
-	userdata.Public = publicKey
-	userdata.Password = hashedPassword
-
-	// Insert the user data into the database
-	return atdb.InsertOneDoc(mongoconn, collection, userdata)
+// catalog
+func CreateNewCatalog(mongoconn *mongo.Database, collection string, catalogdata Catalog) interface{} {
+	return atdb.InsertOneDoc(mongoconn, collection, catalogdata)
 }
 
-// hp
-func CreateNewHp(mongoconn *mongo.Database, collection string, hpdata Hp) interface{} {
-	return atdb.InsertOneDoc(mongoconn, collection, hpdata)
+// catalog function
+func insertCatalog(mongoconn *mongo.Database, collection string, catalogdata Catalog) interface{} {
+	return atdb.InsertOneDoc(mongoconn, collection, catalogdata)
 }
 
-// hp function
-func insertHp(mongoconn *mongo.Database, collection string, hpdata Hp) interface{} {
-	return atdb.InsertOneDoc(mongoconn, collection, hpdata)
-}
-
-func DeleteHp(mongoconn *mongo.Database, collection string, hpdata Hp) interface{} {
-	filter := bson.M{"nomorid": hpdata.Nomorid}
+func DeleteCatalog(mongoconn *mongo.Database, collection string, catalogdata Catalog) interface{} {
+	filter := bson.M{"nomorid": catalogdata.Nomorid}
 	return atdb.DeleteOneDoc(mongoconn, collection, filter)
 }
 
-func UpdatedHp(mongoconn *mongo.Database, collection string, filter bson.M, hpdata Hp) interface{} {
-	updatedFilter := bson.M{"nomorid": hpdata.Nomorid}
-	return atdb.ReplaceOneDoc(mongoconn, collection, updatedFilter, hpdata)
+func UpdatedCatalog(mongoconn *mongo.Database, collection string, filter bson.M, catalogdata Catalog) interface{} {
+	updatedFilter := bson.M{"nomorid": catalogdata.Nomorid}
+	return atdb.ReplaceOneDoc(mongoconn, collection, updatedFilter, catalogdata)
 }
 
-func GetAllHp(mongoconn *mongo.Database, collection string) []Hp {
-	hp := atdb.GetAllDoc[[]Hp](mongoconn, collection)
-	return hp
+func GetAllCatalog(mongoconn *mongo.Database, collection string) []Catalog {
+	catalog := atdb.GetAllDoc[[]Catalog](mongoconn, collection)
+	return catalog
+}
+func GetAllCatalogs(MongoConn *mongo.Database, colname string, email string) []Admin {
+	data := atdb.GetAllDoc[[]Admin](MongoConn, colname)
+	return data
 }
 
-func GetAllHpID(mongoconn *mongo.Database, collection string, hpdata Hp) Hp {
+func GetAllCatalogID(mongoconn *mongo.Database, collection string, catalogdata Catalog) Catalog {
 	filter := bson.M{
-		"nomorid":     hpdata.Nomorid,
-		"title":       hpdata.Title,
-		"description": hpdata.Description,
-		"image":       hpdata.Image,
+		"nomorid":     catalogdata.Nomorid,
+		"title":       catalogdata.Title,
+		"description": catalogdata.Description,
+		"image":       catalogdata.Image,
+		"lokasi":      catalogdata.Lokasi,
 	}
-	hpID := atdb.GetOneDoc[Hp](mongoconn, collection, filter)
-	return hpID
+	catalogID := atdb.GetOneDoc[Catalog](mongoconn, collection, filter)
+	return catalogID
+}
+
+// about function
+
+func InsertAbout(mongoconn *mongo.Database, collection string, aboutdata About) interface{} {
+	return atdb.InsertOneDoc(mongoconn, collection, aboutdata)
+}
+
+func DeleteAbout(mongoconn *mongo.Database, collection string, aboutdata About) interface{} {
+	filter := bson.M{"id": aboutdata.ID}
+	return atdb.DeleteOneDoc(mongoconn, collection, filter)
+}
+
+func UpdatedAbout(mongoconn *mongo.Database, collection string, filter bson.M, aboutdata About) interface{} {
+	updatedFilter := bson.M{"id": aboutdata.ID}
+	return atdb.ReplaceOneDoc(mongoconn, collection, updatedFilter, aboutdata)
+}
+
+func GetAllAbout(mongoconn *mongo.Database, collection string) []About {
+	about := atdb.GetAllDoc[[]About](mongoconn, collection)
+	return about
+}
+
+// contact function
+
+func InsertContact(mongoconn *mongo.Database, collection string, contactdata Contact) interface{} {
+	return atdb.InsertOneDoc(mongoconn, collection, contactdata)
+}
+
+func GetAllContact(mongoconn *mongo.Database, collection string) []Contact {
+	contact := atdb.GetAllDoc[[]Contact](mongoconn, collection)
+	return contact
+}
+
+func GetIdContact(mongoconn *mongo.Database, collection string, contactdata Contact) Contact {
+	filter := bson.M{"id": contactdata.ID}
+	return atdb.GetOneDoc[Contact](mongoconn, collection, filter)
+}
+
+//crawling function
+
+func GetAllCrawling(mongoconn *mongo.Database, collection string) []Crawling {
+	crawling := atdb.GetAllDoc[[]Crawling](mongoconn, collection)
+	return crawling
 }
