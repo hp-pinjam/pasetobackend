@@ -164,7 +164,7 @@ func GetAllHpID(mongoconn *mongo.Database, collection string, hpdata Hp) Hp {
 		"title":       hpdata.Title,
 		"description": hpdata.Description,
 		"image":       hpdata.Image,
-		"lokasi":      hpdata.Lokasi,
+		// "lokasi":      hpdata.Lokasi,
 	}
 	hpID := atdb.GetOneDoc[Hp](mongoconn, collection, filter)
 	return hpID
@@ -172,44 +172,44 @@ func GetAllHpID(mongoconn *mongo.Database, collection string, hpdata Hp) Hp {
 
 // about function
 
-func InsertAbout(mongoconn *mongo.Database, collection string, aboutdata About) interface{} {
-	return atdb.InsertOneDoc(mongoconn, collection, aboutdata)
-}
+// func InsertAbout(mongoconn *mongo.Database, collection string, aboutdata About) interface{} {
+// 	return atdb.InsertOneDoc(mongoconn, collection, aboutdata)
+// }
 
-func DeleteAbout(mongoconn *mongo.Database, collection string, aboutdata About) interface{} {
-	filter := bson.M{"id": aboutdata.ID}
-	return atdb.DeleteOneDoc(mongoconn, collection, filter)
-}
+// func DeleteAbout(mongoconn *mongo.Database, collection string, aboutdata About) interface{} {
+// 	filter := bson.M{"id": aboutdata.ID}
+// 	return atdb.DeleteOneDoc(mongoconn, collection, filter)
+// }
 
-func UpdatedAbout(mongoconn *mongo.Database, collection string, filter bson.M, aboutdata About) interface{} {
-	updatedFilter := bson.M{"id": aboutdata.ID}
-	return atdb.ReplaceOneDoc(mongoconn, collection, updatedFilter, aboutdata)
-}
+// func UpdatedAbout(mongoconn *mongo.Database, collection string, filter bson.M, aboutdata About) interface{} {
+// 	updatedFilter := bson.M{"id": aboutdata.ID}
+// 	return atdb.ReplaceOneDoc(mongoconn, collection, updatedFilter, aboutdata)
+// }
 
-func GetAllAbout(mongoconn *mongo.Database, collection string) []About {
-	about := atdb.GetAllDoc[[]About](mongoconn, collection)
-	return about
-}
+// func GetAllAbout(mongoconn *mongo.Database, collection string) []About {
+// 	about := atdb.GetAllDoc[[]About](mongoconn, collection)
+// 	return about
+// }
 
 // contact function
 
-func InsertContact(mongoconn *mongo.Database, collection string, contactdata Contact) interface{} {
-	return atdb.InsertOneDoc(mongoconn, collection, contactdata)
-}
+// func InsertContact(mongoconn *mongo.Database, collection string, contactdata Contact) interface{} {
+// 	return atdb.InsertOneDoc(mongoconn, collection, contactdata)
+// }
 
-func GetAllContact(mongoconn *mongo.Database, collection string) []Contact {
-	contact := atdb.GetAllDoc[[]Contact](mongoconn, collection)
-	return contact
-}
+// func GetAllContact(mongoconn *mongo.Database, collection string) []Contact {
+// 	contact := atdb.GetAllDoc[[]Contact](mongoconn, collection)
+// 	return contact
+// }
 
-func GetIdContact(mongoconn *mongo.Database, collection string, contactdata Contact) Contact {
-	filter := bson.M{"id": contactdata.ID}
-	return atdb.GetOneDoc[Contact](mongoconn, collection, filter)
-}
+// func GetIdContact(mongoconn *mongo.Database, collection string, contactdata Contact) Contact {
+// 	filter := bson.M{"id": contactdata.ID}
+// 	return atdb.GetOneDoc[Contact](mongoconn, collection, filter)
+// }
 
 //crawling function
 
-func GetAllCrawling(mongoconn *mongo.Database, collection string) []Crawling {
-	crawling := atdb.GetAllDoc[[]Crawling](mongoconn, collection)
-	return crawling
-}
+// func GetAllCrawling(mongoconn *mongo.Database, collection string) []Crawling {
+// 	crawling := atdb.GetAllDoc[[]Crawling](mongoconn, collection)
+// 	return crawling
+// }

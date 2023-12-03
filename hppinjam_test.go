@@ -57,7 +57,7 @@ func TestHp(t *testing.T) {
 	hpdata.Nomorid = 1
 	hpdata.Title = "garut"
 	hpdata.Description = "keren banget"
-	hpdata.Lokasi = "disini"
+	// hpdata.Lokasi = "disini"
 	hpdata.Image = "https://images3.alphacoders.com/165/thumb-1920-165265.jpg"
 	CreateNewHp(mconn, "hp", hpdata)
 }

@@ -36,22 +36,22 @@ type Payload struct {
 	Nbf   time.Time `json:"nbf"`
 }
 
-type Crawling struct {
-	ID         primitive.ObjectID `bson:"_id,omitempty" `
-	Created_at string             `json:"created_at" bson:"created_at"`
-	Full_text  string             `json:"full_text" bson:"full_text"`
-	Username   string             `json:"username" bson:"username"`
-	Location   string             `json:"location" bson:"location"`
-}
+// type Crawling struct {
+// 	ID         primitive.ObjectID `bson:"_id,omitempty" `
+// 	Created_at string             `json:"created_at" bson:"created_at"`
+// 	Full_text  string             `json:"full_text" bson:"full_text"`
+// 	Username   string             `json:"username" bson:"username"`
+// 	Location   string             `json:"location" bson:"location"`
+// }
 
 type Hp struct {
 	ID          primitive.ObjectID `bson:"_id,omitempty" `
 	Nomorid     int                `json:"nomorid" bson:"nomorid"`
 	Title       string             `json:"title" bson:"title"`
 	Description string             `json:"description" bson:"description"`
-	Lokasi      string             `json:"lokasi" bson:"lokasi"`
-	Image       string             `json:"image" bson:"image"`
-	Status      bool               `json:"status" bson:"status"`
+	// Lokasi      string             `json:"lokasi" bson:"lokasi"`
+	Image  string `json:"image" bson:"image"`
+	Status bool   `json:"status" bson:"status"`
 }
 
 type About struct {
@@ -62,11 +62,11 @@ type About struct {
 	Status      bool   `json:"status" bson:"status"`
 }
 
-type Contact struct {
-	ID       int    `json:"id" bson:"id"`
-	FullName string `json:"fullname" bson:"fullname"`
-	Email    string `json:"email" bson:"email"`
-	Phone    string `json:"phone" bson:"phone"`
-	Message  string `json:"image" bson:"image"`
-	Status   bool   `json:"status" bson:"status"`
-}
+// type Contact struct {
+// 	ID       int    `json:"id" bson:"id"`
+// 	FullName string `json:"fullname" bson:"fullname"`
+// 	Email    string `json:"email" bson:"email"`
+// 	Phone    string `json:"phone" bson:"phone"`
+// 	Message  string `json:"image" bson:"image"`
+// 	Status   bool   `json:"status" bson:"status"`
+// }
