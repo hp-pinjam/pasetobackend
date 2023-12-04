@@ -164,7 +164,6 @@ func GetAllHpID(mongoconn *mongo.Database, collection string, hpdata Hp) Hp {
 		"title":       hpdata.Title,
 		"description": hpdata.Description,
 		"image":       hpdata.Image,
-		// "lokasi":      hpdata.Lokasi,
 	}
 	hpID := atdb.GetOneDoc[Hp](mongoconn, collection, filter)
 	return hpID

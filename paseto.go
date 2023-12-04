@@ -95,9 +95,8 @@ func GCFInsertHp(publickey, MONGOCONNSTRINGENV, dbname, colladmin, collhp string
 						Nomorid:     datahp.Nomorid,
 						Title:       datahp.Title,
 						Description: datahp.Description,
-						// Lokasi:      datahp.Lokasi,
-						Image:  datahp.Image,
-						Status: datahp.Status,
+						Image:       datahp.Image,
+						Status:      datahp.Status,
 					})
 					response.Status = true
 					response.Message = "Berhasil Insert Hp"
