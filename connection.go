@@ -3,6 +3,7 @@ package pasetobackend
 import (
 	"context"
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/aiteung/atdb"
@@ -26,6 +27,18 @@ func InsertAdmindata(MongoConn *mongo.Database, email, role, password string) (I
 	req.Password = password
 	req.Role = role
 	return InsertOneDoc(MongoConn, "admin", req)
+}
+
+func InsertUserData(conn *mongo.Client, username, email, password string) {
+	collection := conn.Database("yourdbname").Collection("user")
+	_, err := collection.InsertOne(context.Background(), bson.M{
+		"username": username,
+		"email":    email,
+		"password": password, // Password sudah di-hash sebelumnya
+	})
+	if err != nil {
+		log.Fatal(err)
+	}
 }
 
 func DeleteAdmin(mongoconn *mongo.Database, collection string, admindata Admin) interface{} {

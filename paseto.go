@@ -1,6 +1,7 @@
 package pasetobackend
 
 import (
+	"context"
 	"encoding/json"
 	"net/http"
 	"os"
@@ -62,6 +63,43 @@ func Register(Mongoenv, dbname string, r *http.Request) string {
 		InsertAdmindata(conn, admindata.Email, admindata.Role, hash)
 		resp.Message = "Berhasil Input data"
 	}
+	response := ReturnStringStruct(resp)
+	return response
+}
+
+func RegisterUser(Mongoenv, dbname string, r *http.Request) string {
+	resp := new(Credential)
+	resp.Status = false
+	conn := SetConnection(Mongoenv, dbname) // conn bertipe *mongo.Database
+	userdata := new(User)
+
+	// Decode request body ke dalam struct User
+	err := json.NewDecoder(r.Body).Decode(&userdata)
+	if err != nil {
+		resp.Message = "Error parsing application/json: " + err.Error()
+	} else {
+		resp.Status = true
+		// Hash password sebelum menyimpan ke database
+		hash, err := HashPass(userdata.Password)
+		if err != nil {
+			resp.Message = "Gagal Hash Password: " + err.Error()
+		} else {
+			// Masukkan data user ke dalam koleksi MongoDB
+			collection := conn.Collection("user") // Ambil koleksi "user" dari database
+			_, err := collection.InsertOne(context.Background(), bson.M{
+				"username": userdata.Username,
+				"email":    userdata.Email,
+				"password": hash, // Simpan password yang sudah di-hash
+			})
+			if err != nil {
+				resp.Message = "Gagal Input data ke user: " + err.Error()
+			} else {
+				resp.Message = "Berhasil Input data ke user"
+			}
+		}
+	}
+
+	// Konversi respons ke format string
 	response := ReturnStringStruct(resp)
 	return response
 }

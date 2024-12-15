@@ -15,6 +15,12 @@ type Admin struct {
 	Public   string `json:"public,omitempty" bson:"public,omitempty"`
 }
 
+type User struct {
+	Username string `json:"username" bson:"username"`
+	Email    string `json:"email" bson:"email"`
+	Password string `json:"password" bson:"password"`
+}
+
 type Credential struct {
 	Status  bool   `json:"status" bson:"status"`
 	Token   string `json:"token,omitempty" bson:"token,omitempty"`
