@@ -104,6 +104,50 @@ func RegisterUser(Mongoenv, dbname string, r *http.Request) string {
 	return response
 }
 
+func GCFInsertWorkout(publickey, MONGOCONNSTRINGENV, dbname, colladmin, collworkout string, r *http.Request) string {
+	var response Credential
+	response.Status = false
+
+	// Set koneksi ke database
+	mdb := SetConnection(MONGOCONNSTRINGENV, dbname) // Mengembalikan *mongo.Database
+	var admindata Admin
+	gettoken := r.Header.Get("Login")
+
+	if gettoken == "" {
+		response.Message = "Header Login Not Exist"
+	} else {
+		// Proses token Login
+		checktoken := watoken.DecodeGetId(os.Getenv(publickey), gettoken)
+		admindata.Email = checktoken
+		if checktoken == "" {
+			response.Message = "Kamu kayaknya belum punya akun"
+		} else {
+			admin2 := FindAdmin(mdb, colladmin, admindata)
+			if admin2.Role == "admin" {
+				var workoutData Workout
+				err := json.NewDecoder(r.Body).Decode(&workoutData)
+				if err != nil {
+					response.Message = "Error parsing application/json: " + err.Error()
+				} else {
+					// Ambil koleksi workout dan masukkan data
+					collection := mdb.Collection(collworkout)
+					insertWorkout(collection, Workout{
+						Name:       workoutData.Name,
+						Gif:        workoutData.Gif,
+						Repetition: workoutData.Repetition,
+						Calories:   workoutData.Calories,
+					})
+					response.Status = true
+					response.Message = "Berhasil Insert Workout"
+				}
+			} else {
+				response.Message = "Anda tidak dapat Insert data karena bukan admin"
+			}
+		}
+	}
+	return GCFReturnStruct(response)
+}
+
 // <--- ini hp --->
 
 // hp post

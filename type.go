@@ -75,3 +75,10 @@ type About struct {
 // 	Message  string `json:"image" bson:"image"`
 // 	Status   bool   `json:"status" bson:"status"`
 // }
+
+type Workout struct {
+	Name       string `json:"name" bson:"name"`             // Nama latihan
+	Gif        string `json:"gif" bson:"gif"`               // URL atau path untuk gif
+	Repetition int    `json:"repetition" bson:"repetition"` // Jumlah repetisi
+	Calories   int    `json:"calories" bson:"calories"`     // Kalori yang terbakar
+}
