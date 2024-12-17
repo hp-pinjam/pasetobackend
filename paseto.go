@@ -109,7 +109,7 @@ func GCFInsertWorkout(publickey, MONGOCONNSTRINGENV, dbname, colladmin, collwork
 	response.Status = false
 
 	// Set koneksi ke database
-	mdb := SetConnection(MONGOCONNSTRINGENV, dbname) // Mengembalikan *mongo.Database
+	mconn := SetConnection(MONGOCONNSTRINGENV, dbname) // Mengembalikan *mongo.Database
 	var admindata Admin
 	gettoken := r.Header.Get("Login")
 
@@ -122,7 +122,7 @@ func GCFInsertWorkout(publickey, MONGOCONNSTRINGENV, dbname, colladmin, collwork
 		if checktoken == "" {
 			response.Message = "Kamu kayaknya belum punya akun"
 		} else {
-			admin2 := FindAdmin(mdb, colladmin, admindata)
+			admin2 := FindAdmin(mconn, colladmin, admindata)
 			if admin2.Role == "admin" {
 				var workoutData Workout
 				err := json.NewDecoder(r.Body).Decode(&workoutData)
@@ -130,7 +130,7 @@ func GCFInsertWorkout(publickey, MONGOCONNSTRINGENV, dbname, colladmin, collwork
 					response.Message = "Error parsing application/json: " + err.Error()
 				} else {
 					// Ambil koleksi workout dan masukkan data
-					collection := mdb.Collection(collworkout)
+					collection := mconn.Collection(collworkout)
 					insertWorkout(collection, Workout{
 						Name:       workoutData.Name,
 						Gif:        workoutData.Gif,

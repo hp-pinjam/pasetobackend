@@ -84,10 +84,3 @@ func GetOneAdmin(MongoConn *mongo.Database, colname string, admindata Admin) Adm
 	data := atdb.GetOneDoc[Admin](MongoConn, colname, filter)
 	return data
 }
-
-func insertWorkout(collection *mongo.Collection, workout Workout) {
-	_, err := collection.InsertOne(context.TODO(), workout)
-	if err != nil {
-		log.Println("Error inserting workout:", err)
-	}
-}

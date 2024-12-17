@@ -127,3 +127,22 @@ func TestLoginn(t *testing.T) {
 	IsPasswordValid(mconn, "admin", admindata)
 	fmt.Println(admindata)
 }
+
+func TestInsertWorkout(t *testing.T) {
+	// Koneksi database mock
+	mconn := SetConnection("MONGOSTRING", "Fitness")
+
+	// Data workout untuk di-insert
+	var workoutData Workout
+	workoutData.Name = "Push Up"
+	workoutData.Gif = "https://example.com/pushup.gif"
+	workoutData.Repetition = 15
+	workoutData.Calories = 50
+
+	// Insert data ke koleksi workout
+	collection := mconn.Collection("workout")
+	insertWorkout(collection, workoutData)
+
+	// Log informasi untuk memastikan tes berhasil
+	t.Logf("Insert workout sukses: %+v", workoutData)
+}
