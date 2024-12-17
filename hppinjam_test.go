@@ -129,20 +129,24 @@ func TestLoginn(t *testing.T) {
 }
 
 func TestInsertWorkout(t *testing.T) {
-	// Koneksi database mock
-	mconn := SetConnection("MONGOSTRING", "Fitness")
+	// Mock koneksi database
+	mconn := SetConnection("MONGOSTRING", "Fitness") // Pastikan koneksi ini sesuai konfigurasi Anda
 
 	// Data workout untuk di-insert
-	var workoutData Workout
-	workoutData.Name = "Push Up"
-	workoutData.Gif = "https://example.com/pushup.gif"
-	workoutData.Repetition = 15
-	workoutData.Calories = 50
+	workoutData := Workout{
+		Name:       "Push Up",
+		Gif:        "https://example.com/pushup.gif",
+		Repetition: 15,
+		Calories:   50,
+	}
 
-	// Insert data ke koleksi workout
-	collection := mconn.Collection("workout")
-	insertWorkout(collection, workoutData)
+	// Panggil fungsi insertWorkout
+	insertedID := insertWorkout(mconn, "workout", workoutData)
 
-	// Log informasi untuk memastikan tes berhasil
-	t.Logf("Insert workout sukses: %+v", workoutData)
+	// Validasi hasil insert
+	if insertedID == nil {
+		t.Errorf("Insert workout gagal: ID tidak ditemukan")
+	} else {
+		t.Logf("Insert workout sukses: ID %v, Data %+v", insertedID, workoutData)
+	}
 }

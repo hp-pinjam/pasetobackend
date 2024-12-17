@@ -3,7 +3,6 @@ package pasetobackend
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/aiteung/atdb"
@@ -170,11 +169,15 @@ func GetAllHpID(mongoconn *mongo.Database, collection string, hpdata Hp) Hp {
 	return hpID
 }
 
-func insertWorkout(collection *mongo.Collection, workout Workout) {
-	_, err := collection.InsertOne(context.TODO(), workout)
-	if err != nil {
-		log.Println("Error inserting workout:", err)
-	}
+// func insertWorkout(collection *mongo.Collection, workout Workout) {
+// 	_, err := collection.InsertOne(context.TODO(), workout)
+// 	if err != nil {
+// 		log.Println("Error inserting workout:", err)
+// 	}
+// }
+
+func insertWorkout(mongoconn *mongo.Database, collection string, workout Workout) interface{} {
+	return atdb.InsertOneDoc(mongoconn, collection, workout)
 }
 
 // about function

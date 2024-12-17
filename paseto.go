@@ -3,6 +3,7 @@ package pasetobackend
 import (
 	"context"
 	"encoding/json"
+	"fmt"
 	"net/http"
 	"os"
 
@@ -129,16 +130,15 @@ func GCFInsertWorkout(publickey, MONGOCONNSTRINGENV, dbname, colladmin, collwork
 				if err != nil {
 					response.Message = "Error parsing application/json: " + err.Error()
 				} else {
-					// Ambil koleksi workout dan masukkan data
-					collection := mconn.Collection(collworkout)
-					insertWorkout(collection, Workout{
+					// Insert data ke MongoDB
+					insertedID := insertWorkout(mconn, collworkout, Workout{
 						Name:       workoutData.Name,
 						Gif:        workoutData.Gif,
 						Repetition: workoutData.Repetition,
 						Calories:   workoutData.Calories,
 					})
 					response.Status = true
-					response.Message = "Berhasil Insert Workout"
+					response.Message = fmt.Sprintf("Berhasil Insert Workout. ID: %v", insertedID)
 				}
 			} else {
 				response.Message = "Anda tidak dapat Insert data karena bukan admin"
