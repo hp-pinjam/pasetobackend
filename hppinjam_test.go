@@ -14,7 +14,7 @@ func TestCreateNewAdminRole(t *testing.T) {
 	admindata.Email = "farhan@gmail.com"
 	admindata.Password = "akurijik"
 	admindata.Role = "admin"
-	mconn := SetConnection("MONGOSTRING", "hppinjam")
+	mconn := SetConnection("MONGOSTRING", "Fitness")
 	CreateNewAdminRole(mconn, "admin", admindata)
 }
 
