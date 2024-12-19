@@ -314,15 +314,14 @@ func GetAllDataHps(PublicKey, MongoEnv, dbname, colname string, r *http.Request)
 			req.Status = false
 			req.Message = "Tidak ada data  " + tokenlogin
 		} else {
-			// Langsung ambil data hp
-			datahp := GetAllHp(conn, colname)
-			if datahp == nil {
+			dataworkout := GetAllHp(conn, colname)
+			if dataworkout == nil {
 				req.Status = false
-				req.Message = "Data hp tidak ada"
+				req.Message = "Data Workout tidak ada"
 			} else {
 				req.Status = true
-				req.Message = "Data Hp berhasil diambil"
-				req.Data = datahp
+				req.Message = "Data Workout berhasil diambil"
+				req.Data = dataworkout
 			}
 		}
 	}

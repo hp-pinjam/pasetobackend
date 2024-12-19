@@ -12,7 +12,7 @@ import (
 func TestCreateNewAdminRole(t *testing.T) {
 	var admindata Admin
 	admindata.Email = "farhan@gmail.com"
-	admindata.Password = "akurijik"
+	admindata.Password = "akuriziq"
 	admindata.Role = "admin"
 	mconn := SetConnection("MONGOSTRING", "Fitness")
 	CreateNewAdminRole(mconn, "admin", admindata)
