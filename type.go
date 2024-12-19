@@ -77,8 +77,8 @@ type About struct {
 // }
 
 type Workout struct {
-	Name       string `json:"name" bson:"name"`             // Nama latihan
-	Gif        string `json:"gif" bson:"gif"`               // URL atau path untuk gif
-	Repetition int    `json:"repetition" bson:"repetition"` // Jumlah repetisi
-	Calories   int    `json:"calories" bson:"calories"`     // Kalori yang terbakar
+	Name       string `json:"name" bson:"name"`
+	Gif        string `json:"gif" bson:"gif"`
+	Repetition string `json:"repetition" bson:"repetition"`
+	Calories   int    `json:"calories" bson:"calories"`
 }

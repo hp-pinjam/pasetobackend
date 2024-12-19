@@ -136,7 +136,7 @@ func TestInsertWorkout(t *testing.T) {
 	workoutData := Workout{
 		Name:       "Push Up",
 		Gif:        "https://example.com/pushup.gif",
-		Repetition: 15,
+		Repetition: "15",
 		Calories:   50,
 	}
 
