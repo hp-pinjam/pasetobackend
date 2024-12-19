@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/aiteung/atdb"
 	"github.com/whatsauth/watoken"
@@ -180,46 +181,22 @@ func insertWorkout(mongoconn *mongo.Database, collection string, workout Workout
 	return atdb.InsertOneDoc(mongoconn, collection, workout)
 }
 
-// about function
+func GetAllWorkout(conn *mongo.Database, colname string) []bson.M {
+	collection := conn.Collection(colname)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
 
-// func InsertAbout(mongoconn *mongo.Database, collection string, aboutdata About) interface{} {
-// 	return atdb.InsertOneDoc(mongoconn, collection, aboutdata)
-// }
+	cursor, err := collection.Find(ctx, bson.M{})
+	if err != nil {
+		fmt.Println("Error fetching data from MongoDB:", err)
+		return nil
+	}
+	defer cursor.Close(ctx)
 
-// func DeleteAbout(mongoconn *mongo.Database, collection string, aboutdata About) interface{} {
-// 	filter := bson.M{"id": aboutdata.ID}
-// 	return atdb.DeleteOneDoc(mongoconn, collection, filter)
-// }
-
-// func UpdatedAbout(mongoconn *mongo.Database, collection string, filter bson.M, aboutdata About) interface{} {
-// 	updatedFilter := bson.M{"id": aboutdata.ID}
-// 	return atdb.ReplaceOneDoc(mongoconn, collection, updatedFilter, aboutdata)
-// }
-
-// func GetAllAbout(mongoconn *mongo.Database, collection string) []About {
-// 	about := atdb.GetAllDoc[[]About](mongoconn, collection)
-// 	return about
-// }
-
-// contact function
-
-// func InsertContact(mongoconn *mongo.Database, collection string, contactdata Contact) interface{} {
-// 	return atdb.InsertOneDoc(mongoconn, collection, contactdata)
-// }
-
-// func GetAllContact(mongoconn *mongo.Database, collection string) []Contact {
-// 	contact := atdb.GetAllDoc[[]Contact](mongoconn, collection)
-// 	return contact
-// }
-
-// func GetIdContact(mongoconn *mongo.Database, collection string, contactdata Contact) Contact {
-// 	filter := bson.M{"id": contactdata.ID}
-// 	return atdb.GetOneDoc[Contact](mongoconn, collection, filter)
-// }
-
-//crawling function
-
-// func GetAllCrawling(mongoconn *mongo.Database, collection string) []Crawling {
-// 	crawling := atdb.GetAllDoc[[]Crawling](mongoconn, collection)
-// 	return crawling
-// }
+	var results []bson.M
+	if err = cursor.All(ctx, &results); err != nil {
+		fmt.Println("Error decoding MongoDB data:", err)
+		return nil
+	}
+	return results
+}
