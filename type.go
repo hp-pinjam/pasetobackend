@@ -83,4 +83,5 @@ type Workout struct {
 	Gif        string             `json:"gif" bson:"gif"`
 	Repetition string             `json:"repetition" bson:"repetition"`
 	Calories   int                `json:"calories" bson:"calories"`
+	Status     bool               `json:"status" bson:"status"`
 }
