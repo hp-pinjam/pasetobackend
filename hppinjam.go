@@ -200,3 +200,38 @@ func GetAllWorkout(conn *mongo.Database, colname string) []bson.M {
 	}
 	return results
 }
+
+func UpdatedWorkout(conn *mongo.Database, colname string, filter bson.M, updateData Workout) {
+	collection := conn.Collection(colname)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	_, err := collection.UpdateOne(ctx, filter, bson.M{"$set": updateData})
+	if err != nil {
+		fmt.Println("Error updating workout:", err)
+	}
+}
+
+func DeleteWorkout(conn *mongo.Database, colname string, workoutData Workout) {
+	collection := conn.Collection(colname)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	_, err := collection.DeleteOne(ctx, bson.M{"_id": workoutData.ID})
+	if err != nil {
+		fmt.Println("Error deleting workout:", err)
+	}
+}
+
+func GetWorkoutByID(conn *mongo.Database, colname string, id primitive.ObjectID) Workout {
+	collection := conn.Collection(colname)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	var workout Workout
+	err := collection.FindOne(ctx, bson.M{"_id": id}).Decode(&workout)
+	if err != nil {
+		fmt.Println("Error fetching workout by ID:", err)
+	}
+	return workout
+}

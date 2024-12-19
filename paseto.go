@@ -346,6 +346,8 @@ func GCFGetAllHpID(MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Re
 	}
 }
 
+// WORKOUT
+
 func GetWorkoutData(PublicKey, MongoConnStringEnv, dbname, colname string, r *http.Request) string {
 	req := new(Response)
 
@@ -381,4 +383,95 @@ func GetWorkoutData(PublicKey, MongoConnStringEnv, dbname, colname string, r *ht
 		}
 	}
 	return ReturnStringStruct(req)
+}
+
+func GCFUpdateWorkout(publickey, MONGOCONNSTRINGENV, dbname, colladmin, collworkout string, r *http.Request) string {
+	var response Credential
+	response.Status = false
+	mconn := SetConnection(MONGOCONNSTRINGENV, dbname)
+	var admindata Admin
+
+	gettoken := r.Header.Get("Login")
+	if gettoken == "" {
+		response.Message = "Header Login Not Exist"
+	} else {
+		checktoken := watoken.DecodeGetId(os.Getenv(publickey), gettoken)
+		admindata.Email = checktoken
+		if checktoken == "" {
+			response.Message = "Kamu kayaknya belum punya akun"
+		} else {
+			admin2 := FindAdmin(mconn, colladmin, admindata)
+			if admin2.Role == "admin" {
+				var workoutData Workout
+				err := json.NewDecoder(r.Body).Decode(&workoutData)
+				if err != nil {
+					response.Message = "Error parsing application/json: " + err.Error()
+				} else {
+					// Update data workout di MongoDB
+					UpdatedWorkout(mconn, collworkout, bson.M{"_id": workoutData.ID}, workoutData)
+					response.Status = true
+					response.Message = "Berhasil Update Workout"
+					return GCFReturnStruct(CreateResponse(true, "Success Update Workout", workoutData))
+				}
+			} else {
+				response.Message = "Anda tidak dapat Update data karena bukan admin"
+			}
+		}
+	}
+	return GCFReturnStruct(response)
+}
+
+func GCFDeleteWorkout(publickey, MONGOCONNSTRINGENV, dbname, colladmin, collworkout string, r *http.Request) string {
+	var response Credential
+	response.Status = false
+	mconn := SetConnection(MONGOCONNSTRINGENV, dbname)
+	var admindata Admin
+
+	gettoken := r.Header.Get("Login")
+	if gettoken == "" {
+		response.Message = "Header Login Not Exist"
+	} else {
+		checktoken := watoken.DecodeGetId(os.Getenv(publickey), gettoken)
+		admindata.Email = checktoken
+		if checktoken == "" {
+			response.Message = "Kamu kayaknya belum punya akun"
+		} else {
+			admin2 := FindAdmin(mconn, colladmin, admindata)
+			if admin2.Role == "admin" {
+				var workoutData Workout
+				err := json.NewDecoder(r.Body).Decode(&workoutData)
+				if err != nil {
+					response.Message = "Error parsing application/json: " + err.Error()
+				} else {
+					// Delete data workout di MongoDB
+					DeleteWorkout(mconn, collworkout, workoutData)
+					response.Status = true
+					response.Message = "Berhasil Delete Workout"
+				}
+			} else {
+				response.Message = "Anda tidak dapat Delete data karena bukan admin"
+			}
+		}
+	}
+	return GCFReturnStruct(response)
+}
+
+func GCFGetWorkoutByID(MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Request) string {
+	// Membuat koneksi ke database
+	mconn := SetConnection(MONGOCONNSTRINGENV, dbname)
+
+	// Parsing ID dari request body
+	var workoutData Workout
+	err := json.NewDecoder(r.Body).Decode(&workoutData)
+	if err != nil {
+		return GCFReturnStruct(CreateResponse(false, "Error parsing application/json: "+err.Error(), nil))
+	}
+
+	// Mendapatkan data workout berdasarkan ID
+	workout := GetWorkoutByID(mconn, collectionname, workoutData.ID)
+	if workout != (Workout{}) {
+		return GCFReturnStruct(CreateResponse(true, "Success: Get Workout By ID", workout))
+	} else {
+		return GCFReturnStruct(CreateResponse(false, "Failed to Get Workout By ID", nil))
+	}
 }
