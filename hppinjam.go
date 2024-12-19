@@ -177,8 +177,17 @@ func GetAllHpID(mongoconn *mongo.Database, collection string, hpdata Hp) Hp {
 // 	}
 // }
 
-func insertWorkout(mongoconn *mongo.Database, collection string, workout Workout) interface{} {
-	return atdb.InsertOneDoc(mongoconn, collection, workout)
+func insertWorkout(conn *mongo.Database, colname string, workout Workout) primitive.ObjectID {
+	collection := conn.Collection(colname)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	result, err := collection.InsertOne(ctx, workout)
+	if err != nil {
+		fmt.Println("Error inserting workout:", err)
+		return primitive.NilObjectID
+	}
+	return result.InsertedID.(primitive.ObjectID)
 }
 
 func GetAllWorkout(conn *mongo.Database, colname string) []bson.M {
@@ -217,7 +226,7 @@ func DeleteWorkout(conn *mongo.Database, colname string, workoutData Workout) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
-	_, err := collection.DeleteOne(ctx, bson.M{"_id": workoutData.ID})
+	_, err := collection.DeleteOne(ctx, bson.M{"number_id": workoutData.NumberID})
 	if err != nil {
 		fmt.Println("Error deleting workout:", err)
 	}
@@ -234,4 +243,17 @@ func GetWorkoutByID(conn *mongo.Database, colname string, id primitive.ObjectID)
 		fmt.Println("Error fetching workout by ID:", err)
 	}
 	return workout
+}
+
+func GenerateNumberID(conn *mongo.Database, colname string) int {
+	collection := conn.Collection(colname)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	count, err := collection.CountDocuments(ctx, bson.M{})
+	if err != nil {
+		fmt.Println("Error counting documents:", err)
+		return 1 // Default ke 1 jika terjadi error
+	}
+	return int(count + 1)
 }

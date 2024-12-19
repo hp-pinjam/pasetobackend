@@ -78,7 +78,7 @@ type About struct {
 
 type Workout struct {
 	ID         primitive.ObjectID `json:"id" bson:"_id"`
-	Nomorid    int                `json:"nomorid" bson:"nomorid"`
+	NumberID   int                `json:"number_id" bson:"number_id"`
 	Name       string             `json:"name" bson:"name"`
 	Gif        string             `json:"gif" bson:"gif"`
 	Repetition string             `json:"repetition" bson:"repetition"`

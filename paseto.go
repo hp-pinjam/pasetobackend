@@ -9,6 +9,7 @@ import (
 
 	"github.com/whatsauth/watoken"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // <--- ini Login & Register Admin --->
@@ -130,15 +131,19 @@ func GCFInsertWorkout(publickey, MONGOCONNSTRINGENV, dbname, colladmin, collwork
 				if err != nil {
 					response.Message = "Error parsing application/json: " + err.Error()
 				} else {
+					// Generate NumberID
+					workoutData.NumberID = GenerateNumberID(mconn, collworkout)
+
 					// Insert data ke MongoDB
-					insertedID := insertWorkout(mconn, collworkout, Workout{
-						Name:       workoutData.Name,
-						Gif:        workoutData.Gif,
-						Repetition: workoutData.Repetition,
-						Calories:   workoutData.Calories,
-					})
-					response.Status = true
-					response.Message = fmt.Sprintf("Berhasil Insert Workout. ID: %v", insertedID)
+					insertedID := insertWorkout(mconn, collworkout, workoutData)
+
+					// Validasi hasil insert
+					if insertedID == primitive.NilObjectID {
+						response.Message = "Insert workout gagal"
+					} else {
+						response.Status = true
+						response.Message = fmt.Sprintf("Berhasil Insert Workout. ID: %v, NumberID: %d", insertedID, workoutData.NumberID)
+					}
 				}
 			} else {
 				response.Message = "Anda tidak dapat Insert data karena bukan admin"
@@ -408,7 +413,7 @@ func GCFUpdateWorkout(publickey, MONGOCONNSTRINGENV, dbname, colladmin, collwork
 					response.Message = "Error parsing application/json: " + err.Error()
 				} else {
 					// Update data workout di MongoDB
-					UpdatedWorkout(mconn, collworkout, bson.M{"_id": workoutData.ID}, workoutData)
+					UpdatedWorkout(mconn, collworkout, bson.M{"number_id": workoutData.NumberID}, workoutData)
 					response.Status = true
 					response.Message = "Berhasil Update Workout"
 					return GCFReturnStruct(CreateResponse(true, "Success Update Workout", workoutData))

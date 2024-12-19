@@ -7,6 +7,7 @@ import (
 	"github.com/aiteung/atdb"
 	"github.com/whatsauth/watoken"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func TestCreateNewAdminRole(t *testing.T) {
@@ -130,7 +131,7 @@ func TestLoginn(t *testing.T) {
 
 func TestInsertWorkout(t *testing.T) {
 	// Mock koneksi database
-	mconn := SetConnection("MONGOSTRING", "Fitness") // Pastikan koneksi ini sesuai konfigurasi Anda
+	mconn := SetConnection("MONGOSTRING", "Fitness") // Pastikan string koneksi sesuai konfigurasi Anda
 
 	// Data workout untuk di-insert
 	workoutData := Workout{
@@ -144,7 +145,7 @@ func TestInsertWorkout(t *testing.T) {
 	insertedID := insertWorkout(mconn, "workout", workoutData)
 
 	// Validasi hasil insert
-	if insertedID == nil {
+	if insertedID == primitive.NilObjectID {
 		t.Errorf("Insert workout gagal: ID tidak ditemukan")
 	} else {
 		t.Logf("Insert workout sukses: ID %v, Data %+v", insertedID, workoutData)
