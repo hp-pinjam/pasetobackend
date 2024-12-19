@@ -134,6 +134,8 @@ func GCFInsertWorkout(publickey, MONGOCONNSTRINGENV, dbname, colladmin, collwork
 				} else {
 					// Generate NumberID
 					workoutData.NumberID = GenerateNumberID(mconn, collworkout)
+					// Set default Status to true (or as needed)
+					workoutData.Status = true
 
 					// Insert data ke MongoDB
 					insertedID := insertWorkout(mconn, collworkout, workoutData)
