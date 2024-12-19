@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"net/http"
 	"os"
+	"time"
 
 	"github.com/whatsauth/watoken"
 	"go.mongodb.org/mongo-driver/bson"
@@ -412,11 +413,35 @@ func GCFUpdateWorkout(publickey, MONGOCONNSTRINGENV, dbname, colladmin, collwork
 				if err != nil {
 					response.Message = "Error parsing application/json: " + err.Error()
 				} else {
-					// Update data workout di MongoDB
-					UpdatedWorkout(mconn, collworkout, bson.M{"number_id": workoutData.NumberID}, workoutData)
-					response.Status = true
-					response.Message = "Berhasil Update Workout"
-					return GCFReturnStruct(CreateResponse(true, "Success Update Workout", workoutData))
+					filter := bson.M{"number_id": workoutData.NumberID}
+					update := bson.M{
+						"$set": bson.M{
+							"name":       workoutData.Name,
+							"gif":        workoutData.Gif,
+							"repetition": workoutData.Repetition,
+							"calories":   workoutData.Calories,
+						},
+					}
+
+					collection := mconn.Collection(collworkout)
+					ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+					defer cancel()
+
+					_, err := collection.UpdateOne(ctx, filter, update)
+					if err != nil {
+						response.Message = "Failed to update workout"
+					} else {
+						// Ambil dokumen yang telah diperbarui
+						var updatedWorkout Workout
+						err := collection.FindOne(ctx, filter).Decode(&updatedWorkout)
+						if err != nil {
+							response.Message = "Workout updated, but failed to fetch updated data"
+						} else {
+							response.Status = true
+							response.Message = "Workout updated successfully"
+							response.Data = updatedWorkout // Masukkan data ke response.Data
+						}
+					}
 				}
 			} else {
 				response.Message = "Anda tidak dapat Update data karena bukan admin"
