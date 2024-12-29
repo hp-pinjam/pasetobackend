@@ -10,6 +10,7 @@ import (
 
 	"github.com/whatsauth/watoken"
 	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // <--- ini Login & Register Admin --->
@@ -146,20 +147,18 @@ func GCFInsertWorkout(publickey, MONGOCONNSTRINGENV, dbname, colladmin, collwork
 				if err != nil {
 					response.Message = "Error parsing application/json: " + err.Error()
 				} else {
-					// Generate NumberID
-					workoutData.NumberID = GenerateNumberID(mconn, collworkout)
-					// Set default Status to true (or as diperlukan)
-					workoutData.Status = true
+					// Set ID secara otomatis jika tidak diberikan
+					if workoutData.ID.IsZero() {
+						workoutData.ID = primitive.NewObjectID()
+					}
 
-					// Insert data ke MongoDB menggunakan InsertOneDoc
-					insertedID := InsertOneDoc(mconn, collworkout, workoutData)
-
-					// Validasi hasil insert
-					if insertedID == nil {
-						response.Message = "Insert workout gagal"
-					} else {
+					// Insert data ke MongoDB
+					insertedID := insertWorkout(mconn, collworkout, workoutData)
+					if insertedID != nil {
 						response.Status = true
-						response.Message = fmt.Sprintf("Berhasil Insert Workout. ID: %v, NumberID: %d", insertedID, workoutData.NumberID)
+						response.Message = fmt.Sprintf("Berhasil Insert Workout. ID: %v", insertedID)
+					} else {
+						response.Message = "Gagal Insert Workout"
 					}
 				}
 			} else {

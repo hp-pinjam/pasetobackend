@@ -177,17 +177,8 @@ func GetAllHpID(mongoconn *mongo.Database, collection string, hpdata Hp) Hp {
 // 	}
 // }
 
-func insertWorkout(conn *mongo.Database, colname string, workout Workout) primitive.ObjectID {
-	collection := conn.Collection(colname)
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	result, err := collection.InsertOne(ctx, workout)
-	if err != nil {
-		fmt.Println("Error inserting workout:", err)
-		return primitive.NilObjectID
-	}
-	return result.InsertedID.(primitive.ObjectID)
+func insertWorkout(mongoconn *mongo.Database, collection string, workout Workout) interface{} {
+	return InsertOneDoc(mongoconn, collection, workout)
 }
 
 func GetAllWorkout(conn *mongo.Database, colname string) []bson.M {

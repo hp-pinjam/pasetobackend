@@ -82,15 +82,11 @@ func MongoCreateConnection(MongoString, dbname string) *mongo.Database {
 }
 
 func InsertOneDoc(db *mongo.Database, collection string, doc interface{}) (insertedID interface{}) {
-	// Insert dokumen ke koleksi MongoDB
 	insertResult, err := db.Collection(collection).InsertOne(context.TODO(), doc)
 	if err != nil {
-		fmt.Printf("InsertOneDoc Error: Failed to insert document into collection '%s': %v\n", collection, err)
-		return nil // Mengembalikan nil jika ada error
+		fmt.Printf("InsertOneDoc: %v\n", err)
+		return nil
 	}
-
-	// Logging sukses
-	fmt.Printf("InsertOneDoc Success: Inserted document with ID %v into collection '%s'\n", insertResult.InsertedID, collection)
 	return insertResult.InsertedID
 }
 
