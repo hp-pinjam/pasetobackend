@@ -181,24 +181,34 @@ func insertWorkout(mongoconn *mongo.Database, collection string, workout Workout
 	return InsertOneDoc(mongoconn, collection, workout)
 }
 
-func GetAllWorkout(conn *mongo.Database, colname string) []bson.M {
+func GetAllWorkout(conn *mongo.Database, colname string) ([]Workout, error) {
 	collection := conn.Collection(colname)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
+	// Query untuk mendapatkan semua dokumen
 	cursor, err := collection.Find(ctx, bson.M{})
 	if err != nil {
-		fmt.Println("Error fetching data from MongoDB:", err)
-		return nil
+		return nil, err
 	}
 	defer cursor.Close(ctx)
 
-	var results []bson.M
-	if err = cursor.All(ctx, &results); err != nil {
-		fmt.Println("Error decoding MongoDB data:", err)
-		return nil
+	// Menyimpan hasil ke slice
+	var workouts []Workout
+	for cursor.Next(ctx) {
+		var workout Workout
+		if err := cursor.Decode(&workout); err != nil {
+			return nil, err
+		}
+		workouts = append(workouts, workout)
 	}
-	return results
+
+	// Jika tidak ada data ditemukan
+	if err := cursor.Err(); err != nil {
+		return nil, err
+	}
+
+	return workouts, nil
 }
 
 func UpdatedWorkout(conn *mongo.Database, colname string, filter bson.M, updateData Workout) {
