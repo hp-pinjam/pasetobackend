@@ -3,7 +3,6 @@ package pasetobackend
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/aiteung/atdb"
@@ -29,16 +28,27 @@ func InsertAdmindata(MongoConn *mongo.Database, email, role, password string) (I
 	return InsertOneDoc(MongoConn, "admin", req)
 }
 
-func InsertUserData(conn *mongo.Client, username, email, password string) {
+func InsertUserData(conn *mongo.Client, username, email, password, name string, height, weight float64, age int) error {
+	// Tentukan koleksi
 	collection := conn.Database("yourdbname").Collection("user")
+
+	// Masukkan data ke koleksi MongoDB
 	_, err := collection.InsertOne(context.Background(), bson.M{
 		"username": username,
 		"email":    email,
-		"password": password, // Password sudah di-hash sebelumnya
+		"password": password, // Pastikan password sudah di-hash sebelum dipanggil
+		"name":     name,
+		"height":   height,
+		"weight":   weight,
+		"age":      age,
 	})
+
+	// Periksa apakah ada error saat insert
 	if err != nil {
-		log.Fatal(err)
+		return fmt.Errorf("failed to insert user data: %v", err)
 	}
+
+	return nil // Tidak ada error
 }
 
 func DeleteAdmin(mongoconn *mongo.Database, collection string, admindata Admin) interface{} {
@@ -72,10 +82,15 @@ func MongoCreateConnection(MongoString, dbname string) *mongo.Database {
 }
 
 func InsertOneDoc(db *mongo.Database, collection string, doc interface{}) (insertedID interface{}) {
+	// Insert dokumen ke koleksi MongoDB
 	insertResult, err := db.Collection(collection).InsertOne(context.TODO(), doc)
 	if err != nil {
-		fmt.Printf("InsertOneDoc: %v\n", err)
+		fmt.Printf("InsertOneDoc Error: Failed to insert document into collection '%s': %v\n", collection, err)
+		return nil // Mengembalikan nil jika ada error
 	}
+
+	// Logging sukses
+	fmt.Printf("InsertOneDoc Success: Inserted document with ID %v into collection '%s'\n", insertResult.InsertedID, collection)
 	return insertResult.InsertedID
 }
 

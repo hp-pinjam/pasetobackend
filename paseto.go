@@ -10,7 +10,6 @@ import (
 
 	"github.com/whatsauth/watoken"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 // <--- ini Login & Register Admin --->
@@ -81,7 +80,17 @@ func RegisterUser(Mongoenv, dbname string, r *http.Request) string {
 	if err != nil {
 		resp.Message = "Error parsing application/json: " + err.Error()
 	} else {
-		resp.Status = true
+		// Validasi data yang wajib diisi
+		if userdata.Username == "" || userdata.Email == "" || userdata.Password == "" {
+			resp.Message = "Username, Email, dan Password tidak boleh kosong"
+			return ReturnStringStruct(resp)
+		}
+
+		if userdata.Height <= 0 || userdata.Weight <= 0 || userdata.Age <= 0 {
+			resp.Message = "Height, Weight, dan Age harus lebih besar dari 0"
+			return ReturnStringStruct(resp)
+		}
+
 		// Hash password sebelum menyimpan ke database
 		hash, err := HashPass(userdata.Password)
 		if err != nil {
@@ -92,11 +101,16 @@ func RegisterUser(Mongoenv, dbname string, r *http.Request) string {
 			_, err := collection.InsertOne(context.Background(), bson.M{
 				"username": userdata.Username,
 				"email":    userdata.Email,
-				"password": hash, // Simpan password yang sudah di-hash
+				"password": hash,          // Simpan password yang sudah di-hash
+				"name":     userdata.Name, // Nama pengguna
+				"height":   userdata.Height,
+				"weight":   userdata.Weight,
+				"age":      userdata.Age,
 			})
 			if err != nil {
 				resp.Message = "Gagal Input data ke user: " + err.Error()
 			} else {
+				resp.Status = true
 				resp.Message = "Berhasil Input data ke user"
 			}
 		}
@@ -134,14 +148,14 @@ func GCFInsertWorkout(publickey, MONGOCONNSTRINGENV, dbname, colladmin, collwork
 				} else {
 					// Generate NumberID
 					workoutData.NumberID = GenerateNumberID(mconn, collworkout)
-					// Set default Status to true (or as needed)
+					// Set default Status to true (or as diperlukan)
 					workoutData.Status = true
 
-					// Insert data ke MongoDB
-					insertedID := insertWorkout(mconn, collworkout, workoutData)
+					// Insert data ke MongoDB menggunakan InsertOneDoc
+					insertedID := InsertOneDoc(mconn, collworkout, workoutData)
 
 					// Validasi hasil insert
-					if insertedID == primitive.NilObjectID {
+					if insertedID == nil {
 						response.Message = "Insert workout gagal"
 					} else {
 						response.Status = true
