@@ -197,13 +197,39 @@ func GetAllWorkout(conn *mongo.Database, colname string) ([]Workout, error) {
 	var workouts []Workout
 	for cursor.Next(ctx) {
 		var workout Workout
-		if err := cursor.Decode(&workout); err != nil {
+
+		// Decode dokumen dengan penanganan khusus untuk tipe campuran
+		var rawWorkout map[string]interface{}
+		if err := cursor.Decode(&rawWorkout); err != nil {
 			return nil, err
 		}
+
+		// Tangani tipe campuran untuk repetition
+		if repetition, ok := rawWorkout["repetition"]; ok {
+			switch v := repetition.(type) {
+			case string:
+				rawWorkout["repetition"] = v
+			case int, int32, int64:
+				rawWorkout["repetition"] = fmt.Sprintf("%d", v) // Konversi integer ke string
+			default:
+				rawWorkout["repetition"] = ""
+			}
+		}
+
+		// Decode ulang ke struct Workout
+		data, err := bson.Marshal(rawWorkout)
+		if err != nil {
+			return nil, err
+		}
+
+		if err := bson.Unmarshal(data, &workout); err != nil {
+			return nil, err
+		}
+
 		workouts = append(workouts, workout)
 	}
 
-	// Jika tidak ada data ditemukan
+	// Jika terjadi error selama iterasi cursor
 	if err := cursor.Err(); err != nil {
 		return nil, err
 	}
