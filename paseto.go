@@ -576,7 +576,7 @@ func GCFDeleteWorkout(publickey, MONGOCONNSTRINGENV, dbname, colladmin, collwork
 	return GCFReturnStruct(response)
 }
 
-func GCFGetWorkoutByID(MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Request) string {
+func GCFGetWorkoutByID(PublicKey, MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Request) string {
 	// Membuat koneksi ke database
 	mconn := SetConnection(MONGOCONNSTRINGENV, dbname)
 	if mconn == nil {
