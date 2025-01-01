@@ -577,36 +577,54 @@ func GCFDeleteWorkout(publickey, MONGOCONNSTRINGENV, dbname, colladmin, collwork
 }
 
 func GCFGetWorkoutByID(PublicKey, MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Request) string {
-	// Validasi HTTP Method
-	if r.Method != http.MethodPost {
-		return GCFReturnStruct(CreateResponse(false, "Invalid HTTP method", nil))
+	req := new(Response)
+
+	conn := SetConnection(MONGOCONNSTRINGENV, dbname)
+	if conn == nil {
+		req.Status = false
+		req.Message = "Failed to connect to MongoDB"
+		return ReturnStringStruct(req)
 	}
 
-	// Membuat koneksi ke database
-	mconn := SetConnection(MONGOCONNSTRINGENV, dbname)
-	if mconn == nil {
-		return GCFReturnStruct(CreateResponse(false, "Failed to connect to MongoDB", nil))
+	// Cek token login
+	tokenlogin := r.Header.Get("Login")
+	if tokenlogin == "" {
+		req.Status = false
+		req.Message = "Header Login Not Found"
+		return ReturnStringStruct(req)
+	}
+
+	// Verifikasi token login
+	_, err := DecodeGetHp(os.Getenv(PublicKey), tokenlogin) // Sesuaikan fungsi DecodeGetHp
+	if err != nil {
+		req.Status = false
+		req.Message = "Invalid token: " + tokenlogin
+		return ReturnStringStruct(req)
 	}
 
 	// Parsing NumberID dari body request
 	var input struct {
 		NumberID int `json:"number_id"`
 	}
-	err := json.NewDecoder(r.Body).Decode(&input)
+	err = json.NewDecoder(r.Body).Decode(&input)
 	if err != nil {
-		return GCFReturnStruct(CreateResponse(false, "Error parsing JSON body: "+err.Error(), nil))
+		req.Status = false
+		req.Message = "Error parsing JSON body: " + err.Error()
+		return ReturnStringStruct(req)
 	}
 
 	// Validasi NumberID
 	if input.NumberID == 0 {
-		return GCFReturnStruct(CreateResponse(false, "NumberID is required", nil))
+		req.Status = false
+		req.Message = "NumberID is required"
+		return ReturnStringStruct(req)
 	}
 
 	// Filter untuk mencari workout berdasarkan NumberID
 	filter := bson.M{"number_id": input.NumberID}
 
 	// Koleksi database
-	collection := mconn.Collection(collectionname)
+	collection := conn.Collection(collectionname)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
@@ -615,11 +633,18 @@ func GCFGetWorkoutByID(PublicKey, MONGOCONNSTRINGENV, dbname, collectionname str
 	err = collection.FindOne(ctx, filter).Decode(&workout)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
-			return GCFReturnStruct(CreateResponse(false, "Workout not found", nil))
+			req.Status = false
+			req.Message = "Workout not found"
+			return ReturnStringStruct(req)
 		}
-		return GCFReturnStruct(CreateResponse(false, "Failed to retrieve workout: "+err.Error(), nil))
+		req.Status = false
+		req.Message = "Failed to retrieve workout: " + err.Error()
+		return ReturnStringStruct(req)
 	}
 
 	// Jika berhasil
-	return GCFReturnStruct(CreateResponse(true, "Success: Get Workout By NumberID", workout))
+	req.Status = true
+	req.Message = "Success: Get Workout By NumberID"
+	req.Data = workout
+	return ReturnStringStruct(req)
 }
