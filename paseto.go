@@ -11,6 +11,7 @@ import (
 	"github.com/whatsauth/watoken"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 // <--- ini Login & Register Admin --->
@@ -575,14 +576,14 @@ func GCFDeleteWorkout(publickey, MONGOCONNSTRINGENV, dbname, colladmin, collwork
 	return GCFReturnStruct(response)
 }
 
-func GCFGetWorkoutByID(PublicKey, MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Request) string {
+func GCFGetWorkoutByID(MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Request) string {
 	// Membuat koneksi ke database
 	mconn := SetConnection(MONGOCONNSTRINGENV, dbname)
 	if mconn == nil {
 		return GCFReturnStruct(CreateResponse(false, "Failed to connect to MongoDB", nil))
 	}
 
-	// Parsing NumberID dari request body
+	// Parsing NumberID dari body request
 	var input struct {
 		NumberID int `json:"number_id"`
 	}
@@ -596,14 +597,22 @@ func GCFGetWorkoutByID(PublicKey, MONGOCONNSTRINGENV, dbname, collectionname str
 		return GCFReturnStruct(CreateResponse(false, "NumberID is required", nil))
 	}
 
-	// Menggunakan fungsi bantuan untuk mendapatkan workout berdasarkan NumberID
-	workout, err := GetWorkoutByNumberID(mconn, collectionname, input.NumberID)
-	if err != nil {
-		return GCFReturnStruct(CreateResponse(false, "Failed to retrieve workout: "+err.Error(), nil))
-	}
+	// Filter untuk mencari workout berdasarkan NumberID
+	filter := bson.M{"number_id": input.NumberID}
 
-	if workout == nil {
-		return GCFReturnStruct(CreateResponse(false, "Workout not found", nil))
+	// Koleksi database
+	collection := mconn.Collection(collectionname)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	// Mendapatkan data workout berdasarkan NumberID
+	var workout Workout
+	err = collection.FindOne(ctx, filter).Decode(&workout)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			return GCFReturnStruct(CreateResponse(false, "Workout not found", nil))
+		}
+		return GCFReturnStruct(CreateResponse(false, "Failed to retrieve workout: "+err.Error(), nil))
 	}
 
 	// Jika berhasil
