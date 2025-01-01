@@ -11,7 +11,6 @@ import (
 	"github.com/whatsauth/watoken"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
-	"go.mongodb.org/mongo-driver/mongo"
 )
 
 // <--- ini Login & Register Admin --->
@@ -576,13 +575,16 @@ func GCFDeleteWorkout(publickey, MONGOCONNSTRINGENV, dbname, colladmin, collwork
 	return GCFReturnStruct(response)
 }
 
-func GCFGetWorkoutByID(MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Request) string {
+func GCFGetWorkoutByID(PublicKey, MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Request) string {
 	// Membuat koneksi ke database
 	mconn := SetConnection(MONGOCONNSTRINGENV, dbname)
+	if mconn == nil {
+		return GCFReturnStruct(CreateResponse(false, "Failed to connect to MongoDB", nil))
+	}
 
 	// Parsing NumberID dari request body
 	var input struct {
-		NumberID int `json:"number_id"` // Mengambil NumberID sebagai input
+		NumberID int `json:"number_id"`
 	}
 	err := json.NewDecoder(r.Body).Decode(&input)
 	if err != nil {
@@ -594,22 +596,14 @@ func GCFGetWorkoutByID(MONGOCONNSTRINGENV, dbname, collectionname string, r *htt
 		return GCFReturnStruct(CreateResponse(false, "NumberID is required", nil))
 	}
 
-	// Filter untuk mencari workout berdasarkan NumberID
-	filter := bson.M{"number_id": input.NumberID}
-
-	// Koleksi database
-	collection := mconn.Collection(collectionname)
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-
-	// Mendapatkan data workout berdasarkan NumberID
-	var workout Workout
-	err = collection.FindOne(ctx, filter).Decode(&workout)
+	// Menggunakan fungsi bantuan untuk mendapatkan workout berdasarkan NumberID
+	workout, err := GetWorkoutByNumberID(mconn, collectionname, input.NumberID)
 	if err != nil {
-		if err == mongo.ErrNoDocuments {
-			return GCFReturnStruct(CreateResponse(false, "Workout not found", nil))
-		}
 		return GCFReturnStruct(CreateResponse(false, "Failed to retrieve workout: "+err.Error(), nil))
+	}
+
+	if workout == nil {
+		return GCFReturnStruct(CreateResponse(false, "Workout not found", nil))
 	}
 
 	// Jika berhasil

@@ -259,17 +259,26 @@ func DeleteWorkout(conn *mongo.Database, colname string, workoutData Workout) {
 	}
 }
 
-func GetWorkoutByID(conn *mongo.Database, colname string, id primitive.ObjectID) Workout {
+func GetWorkoutByNumberID(conn *mongo.Database, colname string, numberID int) (*Workout, error) {
 	collection := conn.Collection(colname)
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 
+	// Filter untuk mencari dokumen berdasarkan NumberID
+	filter := bson.M{"number_id": numberID}
+
 	var workout Workout
-	err := collection.FindOne(ctx, bson.M{"_id": id}).Decode(&workout)
+
+	// Mendapatkan data berdasarkan filter
+	err := collection.FindOne(ctx, filter).Decode(&workout)
 	if err != nil {
-		fmt.Println("Error fetching workout by ID:", err)
+		if err == mongo.ErrNoDocuments {
+			return nil, nil // Tidak ditemukan
+		}
+		return nil, err // Error lainnya
 	}
-	return workout
+
+	return &workout, nil
 }
 
 func GenerateNumberID(conn *mongo.Database, colname string) int {
