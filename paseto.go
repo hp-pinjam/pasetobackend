@@ -578,7 +578,7 @@ func GCFDeleteWorkout(publickey, MONGOCONNSTRINGENV, dbname, colladmin, collwork
 
 func GCFGetWorkoutByID(PublicKey, MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Request) string {
 	// Validasi HTTP Method
-	if r.Method != http.MethodGet {
+	if r.Method != http.MethodPost {
 		return GCFReturnStruct(CreateResponse(false, "Invalid HTTP method", nil))
 	}
 
