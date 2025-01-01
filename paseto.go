@@ -577,6 +577,11 @@ func GCFDeleteWorkout(publickey, MONGOCONNSTRINGENV, dbname, colladmin, collwork
 }
 
 func GCFGetWorkoutByID(PublicKey, MONGOCONNSTRINGENV, dbname, collectionname string, r *http.Request) string {
+	// Validasi HTTP Method
+	if r.Method != http.MethodGet {
+		return GCFReturnStruct(CreateResponse(false, "Invalid HTTP method", nil))
+	}
+
 	// Membuat koneksi ke database
 	mconn := SetConnection(MONGOCONNSTRINGENV, dbname)
 	if mconn == nil {
@@ -589,7 +594,7 @@ func GCFGetWorkoutByID(PublicKey, MONGOCONNSTRINGENV, dbname, collectionname str
 	}
 	err := json.NewDecoder(r.Body).Decode(&input)
 	if err != nil {
-		return GCFReturnStruct(CreateResponse(false, "Error parsing application/json: "+err.Error(), nil))
+		return GCFReturnStruct(CreateResponse(false, "Error parsing JSON body: "+err.Error(), nil))
 	}
 
 	// Validasi NumberID
