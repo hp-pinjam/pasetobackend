@@ -19,7 +19,6 @@ type User struct {
 	Username string  `json:"username" bson:"username"` // Username pengguna
 	Email    string  `json:"email" bson:"email"`       // Email pengguna
 	Password string  `json:"password" bson:"password"` // Password pengguna
-	Name     string  `json:"name" bson:"name"`         // Nama pengguna
 	Height   float64 `json:"height" bson:"height"`     // Tinggi badan (dalam cm)
 	Weight   float64 `json:"weight" bson:"weight"`     // Berat badan (dalam kg)
 	Age      int     `json:"age" bson:"age"`           // Umur pengguna (dalam tahun)

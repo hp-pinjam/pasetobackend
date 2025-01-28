@@ -103,8 +103,7 @@ func RegisterUser(Mongoenv, dbname string, r *http.Request) string {
 			_, err := collection.InsertOne(context.Background(), bson.M{
 				"username": userdata.Username,
 				"email":    userdata.Email,
-				"password": hash,          // Simpan password yang sudah di-hash
-				"name":     userdata.Name, // Nama pengguna
+				"password": hash, // Simpan password yang sudah di-hash
 				"height":   userdata.Height,
 				"weight":   userdata.Weight,
 				"age":      userdata.Age,

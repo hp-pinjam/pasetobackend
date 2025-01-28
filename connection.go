@@ -37,7 +37,6 @@ func InsertUserData(conn *mongo.Client, username, email, password, name string, 
 		"username": username,
 		"email":    email,
 		"password": password, // Pastikan password sudah di-hash sebelum dipanggil
-		"name":     name,
 		"height":   height,
 		"weight":   weight,
 		"age":      age,
