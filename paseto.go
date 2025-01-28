@@ -647,3 +647,63 @@ func GCFGetWorkoutByID(PublicKey, MONGOCONNSTRINGENV, dbname, collectionname str
 	req.Data = workout
 	return ReturnStringStruct(req)
 }
+
+func GetUserData(PublicKey, MongoConnStringEnv, dbname, colname string, r *http.Request) string {
+	req := new(Credential)
+
+	// Membuat koneksi ke MongoDB
+	conn := SetConnection(MongoConnStringEnv, dbname)
+	if conn == nil {
+		req.Status = false
+		req.Message = "Failed to connect to MongoDB"
+		return ReturnStringStruct(req)
+	}
+
+	// Cek token login
+	tokenlogin := r.Header.Get("Login")
+	if tokenlogin == "" {
+		req.Status = false
+		req.Message = "Header Login Not Found"
+		return ReturnStringStruct(req)
+	}
+
+	// Verifikasi token login dan dapatkan user ID (key.Hp)
+	userID, err := DecodeGetHp(PublicKey, tokenlogin)
+	if err != nil {
+		req.Status = false
+		req.Message = "Invalid token: " + err.Error()
+		return ReturnStringStruct(req)
+	}
+
+	// Konversi userID (key.Hp) menjadi ObjectID
+	objID, err := primitive.ObjectIDFromHex(userID)
+	if err != nil {
+		req.Status = false
+		req.Message = "Invalid User ID: " + err.Error()
+		return ReturnStringStruct(req)
+	}
+
+	// Ambil data user berdasarkan userID dari koleksi MongoDB
+	collection := conn.Collection(colname)
+	var userdata User
+	err = collection.FindOne(context.Background(), bson.M{"_id": objID}).Decode(&userdata)
+	if err != nil {
+		if err == mongo.ErrNoDocuments {
+			req.Status = false
+			req.Message = "User not found"
+			return ReturnStringStruct(req)
+		}
+		req.Status = false
+		req.Message = "Failed to retrieve user data: " + err.Error()
+		return ReturnStringStruct(req)
+	}
+
+	// Kosongkan password sebelum mengembalikan data user
+	userdata.Password = ""
+
+	// Jika berhasil
+	req.Status = true
+	req.Message = "User data retrieved successfully"
+	req.Data = userdata
+	return ReturnStringStruct(req)
+}
