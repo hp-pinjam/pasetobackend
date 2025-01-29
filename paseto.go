@@ -659,7 +659,7 @@ func GetUserData(PublicKey, MongoConnStringEnv, dbname, colname string, r *http.
 		return ReturnStringStruct(req)
 	}
 
-	// Cek token login
+	// Ambil token login dari header
 	tokenlogin := r.Header.Get("Login")
 	if tokenlogin == "" {
 		req.Status = false
@@ -667,7 +667,7 @@ func GetUserData(PublicKey, MongoConnStringEnv, dbname, colname string, r *http.
 		return ReturnStringStruct(req)
 	}
 
-	// Verifikasi token login dan dapatkan user ID (key.Hp)
+	// Verifikasi token login dan dapatkan ID (key.Hp)
 	userID, err := DecodeGetHp(PublicKey, tokenlogin)
 	if err != nil {
 		req.Status = false
@@ -675,18 +675,10 @@ func GetUserData(PublicKey, MongoConnStringEnv, dbname, colname string, r *http.
 		return ReturnStringStruct(req)
 	}
 
-	// Konversi userID (key.Hp) menjadi ObjectID
-	objID, err := primitive.ObjectIDFromHex(userID)
-	if err != nil {
-		req.Status = false
-		req.Message = "Invalid User ID: " + err.Error()
-		return ReturnStringStruct(req)
-	}
-
-	// Ambil data user berdasarkan userID dari koleksi MongoDB
+	// Ambil data user berdasarkan ID (username) dari MongoDB
 	collection := conn.Collection(colname)
 	var userdata User
-	err = collection.FindOne(context.Background(), bson.M{"_id": objID}).Decode(&userdata)
+	err = collection.FindOne(context.Background(), bson.M{"username": userID}).Decode(&userdata)
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
 			req.Status = false
