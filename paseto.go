@@ -667,15 +667,16 @@ func GetUserData(PublicKey, MongoConnStringEnv, dbname, colname string, r *http.
 		return ReturnStringStruct(req)
 	}
 
-	// Verifikasi token login dan dapatkan ID (key.Hp)
+	// Gunakan DecodeGetHp untuk memproses token
 	userID, err := DecodeGetHp(PublicKey, tokenlogin)
 	if err != nil {
 		req.Status = false
 		req.Message = "Invalid token: " + err.Error()
 		return ReturnStringStruct(req)
 	}
+	fmt.Println("Decoded userID from token:", userID)
 
-	// Ambil data user berdasarkan ID (username) dari MongoDB
+	// Query MongoDB menggunakan userID
 	collection := conn.Collection(colname)
 	var userdata User
 	err = collection.FindOne(context.Background(), bson.M{"username": userID}).Decode(&userdata)
