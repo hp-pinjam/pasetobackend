@@ -700,3 +700,54 @@ func GetUserData(PublicKey, MongoConnStringEnv, dbname, colname string, r *http.
 	req.Data = userdata
 	return ReturnStringStruct(req)
 }
+
+func Registrasi(Mongoenv, dbname string, r *http.Request) string {
+	resp := new(Credential)
+	resp.Status = false
+	conn := SetConnection(Mongoenv, dbname) // conn bertipe *mongo.Database
+	admindata := new(User)
+
+	// Decode request body ke dalam struct User
+	err := json.NewDecoder(r.Body).Decode(&admindata)
+	if err != nil {
+		resp.Message = "Error parsing application/json: " + err.Error()
+	} else {
+		// Validasi data yang wajib diisi
+		if admindata.Username == "" || admindata.Email == "" || admindata.Password == "" {
+			resp.Message = "Username, Email, dan Password tidak boleh kosong"
+			return ReturnStringStruct(resp)
+		}
+
+		if admindata.Height <= 0 || admindata.Weight <= 0 || admindata.Age <= 0 {
+			resp.Message = "Height, Weight, dan Age harus lebih besar dari 0"
+			return ReturnStringStruct(resp)
+		}
+
+		// Hash password sebelum menyimpan ke database
+		hash, err := HashPass(admindata.Password)
+		if err != nil {
+			resp.Message = "Gagal Hash Password: " + err.Error()
+		} else {
+			// Masukkan data user ke dalam koleksi MongoDB
+			collection := conn.Collection("admin") // Ambil koleksi "user" dari database
+			_, err := collection.InsertOne(context.Background(), bson.M{
+				"username": admindata.Username,
+				"email":    admindata.Email,
+				"password": hash, // Simpan password yang sudah di-hash
+				"height":   admindata.Height,
+				"weight":   admindata.Weight,
+				"age":      admindata.Age,
+			})
+			if err != nil {
+				resp.Message = "Gagal Input data: " + err.Error()
+			} else {
+				resp.Status = true
+				resp.Message = "Berhasil Input data"
+			}
+		}
+	}
+
+	// Konversi respons ke format string
+	response := ReturnStringStruct(resp)
+	return response
+}
