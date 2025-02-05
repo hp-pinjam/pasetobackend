@@ -440,8 +440,8 @@ func GCFUpdateWorkout(publickey, MONGOCONNSTRINGENV, dbname, colladmin, collwork
 
 	// Cek apakah user adalah admin
 	admin2 := FindAdmin(mconn, colladmin, admindata)
-	if admin2.Role != "admin" {
-		response.Message = "Anda tidak dapat Update data karena bukan admin"
+	if admin2.Email == "" {
+		response.Message = "Anda tidak terdaftar sebagai admin"
 		return GCFReturnStruct(response)
 	}
 
