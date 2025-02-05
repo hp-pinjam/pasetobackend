@@ -508,11 +508,11 @@ func GCFUpdateWorkout(publickey, MONGOCONNSTRINGENV, dbname, colladmin, collwork
 	return GCFReturnStruct(response)
 }
 
-func GCFDeleteWorkout(publickey, MONGOCONNSTRINGENV, dbname, colladmin, collworkout string, r *http.Request) string {
+func GCFDeleteWorkout(publickey, MONGOCONNSTRINGENV, dbname, colluser, collworkout string, r *http.Request) string {
 	var response Credential
 	response.Status = false
 	mconn := SetConnection(MONGOCONNSTRINGENV, dbname) // Koneksi ke database
-	var admindata Admin
+	var userdata User
 
 	// Cek header token
 	gettoken := r.Header.Get("Login")
@@ -523,18 +523,18 @@ func GCFDeleteWorkout(publickey, MONGOCONNSTRINGENV, dbname, colladmin, collwork
 
 	// Decode token Login
 	checktoken := watoken.DecodeGetId(os.Getenv(publickey), gettoken)
-	admindata.Email = checktoken
+	userdata.Username = checktoken
 	if checktoken == "" {
 		response.Message = "Kamu kayaknya belum punya akun"
 		return GCFReturnStruct(response)
 	}
 
 	// Cek apakah user adalah admin
-	admin2 := FindAdmin(mconn, colladmin, admindata)
-	if admin2.Role != "admin" {
-		response.Message = "Anda tidak dapat Delete data karena bukan admin"
-		return GCFReturnStruct(response)
-	}
+	// user2 := FindUser(mconn, colluser, userdata)
+	// if user2.Role != "user" {
+	// 	response.Message = "Anda tidak dapat Delete data karena bukan admin"
+	// 	return GCFReturnStruct(response)
+	// }
 
 	// Decode data Workout dari body request
 	var workoutData Workout

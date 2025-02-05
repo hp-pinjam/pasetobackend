@@ -94,3 +94,8 @@ func GetOneAdmin(MongoConn *mongo.Database, colname string, admindata Admin) Adm
 	data := atdb.GetOneDoc[Admin](MongoConn, colname, filter)
 	return data
 }
+
+func FindUser(mongoconn *mongo.Database, collection string, userdata User) User {
+	filter := bson.M{"username": userdata.Username}
+	return atdb.GetOneDoc[User](mongoconn, collection, filter)
+}
